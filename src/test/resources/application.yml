@@ -1,11 +1,11 @@
-server:
-  port: 8080
-  error:
-    include-message: always
+#server:
+#  port: 8080
+#  error:
+#    include-message: always
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5332/e_banking_suite
+    url: jdbc:postgresql://localhost:5332/e_banking_suite_test
     username: amigoscode
     password: postgrespw
   jpa:
@@ -14,6 +14,6 @@ spring:
     properties:
       hibernate: dialect:org.hibernate.dialect.PostgreSQLDialect
       format_sql: true
-    show-sql: false
+    show-sql: true
   main:
     web-application-type: servlet
