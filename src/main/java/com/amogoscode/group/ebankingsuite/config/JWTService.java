@@ -1,4 +1,4 @@
-package com.amogoscode.groupe.ebankingsuite.config;
+package com.amogoscode.group.ebankingsuite.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -17,7 +17,7 @@ import java.util.function.Function;
 @Service
 public class JWTService {
 
-        private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
+        private static final String SECRET_KEY = "78826353454i8292378iw7w7878t2";
         public String extractUsername(String token) {
             return extractClaim(token, Claims::getSubject);
         }

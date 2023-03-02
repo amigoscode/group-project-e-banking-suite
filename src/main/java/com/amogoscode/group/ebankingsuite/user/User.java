@@ -1,19 +1,17 @@
-package com.amogoscode.groupe.ebankingsuite.User;
+package com.amogoscode.group.ebankingsuite.user;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Objects;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "users")
+@Data
+@NoArgsConstructor
 public class User implements UserDetails {
 
     @Id
@@ -44,33 +42,6 @@ public class User implements UserDetails {
         this.createdAt=LocalDateTime.now();
         this.updatedAt=LocalDateTime.now();
         this.isNotBlocked = isNotBlocked;
-    }
-
-    public User() {
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public String getEmailAddress() {
-        return emailAddress;
-    }
-
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
     }
 
     @Override
@@ -108,29 +79,4 @@ public class User implements UserDetails {
     }
 
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", fullName='" + fullName + '\'' +
-                ", emailAddress='" + emailAddress + '\'' +
-                ", password='" + password + '\'' +
-                ", isNotBlocked=" + isNotBlocked +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return isNotBlocked == user.isNotBlocked && Objects.equals(id, user.id) && Objects.equals(fullName, user.fullName) && Objects.equals(emailAddress, user.emailAddress) && Objects.equals(password, user.password) && Objects.equals(createdAt, user.createdAt) && Objects.equals(updatedAt, user.updatedAt);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, fullName, emailAddress, password, isNotBlocked, createdAt, updatedAt);
-    }
 }

@@ -1,10 +1,11 @@
-package com.amogoscode.groupe.ebankingsuite.User;
+package com.amogoscode.group.ebankingsuite.user;
 
-import com.amogoscode.groupe.ebankingsuite.User.resquests.UserAuthenticationRequests;
-import com.amogoscode.groupe.ebankingsuite.User.resquests.UserRegistrationRequest;
-import com.amogoscode.groupe.ebankingsuite.exception.InvalidAuthenticationException;
-import com.amogoscode.groupe.ebankingsuite.exception.ResourceNotFoundException;
-import com.amogoscode.groupe.ebankingsuite.universal.ApiResponse;
+import com.amogoscode.group.ebankingsuite.user.resquests.UserAuthenticationRequests;
+import com.amogoscode.group.ebankingsuite.user.resquests.UserRegistrationRequest;
+import com.amogoscode.group.ebankingsuite.exception.InvalidAuthenticationException;
+import com.amogoscode.group.ebankingsuite.exception.ResourceNotFoundException;
+import com.amogoscode.group.ebankingsuite.universal.ApiResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,17 +19,17 @@ public class UserController {
 
     private final UserService userService;
 
+    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
-
 
     @PostMapping("/save")
     public ResponseEntity<ApiResponse> saveUser(@RequestBody UserRegistrationRequest request){
         try {
             userService.createNewUser(request);
             return  new ResponseEntity<>(
-                    new ApiResponse("user created successfully"), HttpStatus.OK);
+                    new ApiResponse("user created successfully"), HttpStatus.CREATED);
         }catch (IllegalArgumentException e){
             return  new ResponseEntity<>(
                     new ApiResponse(e.getMessage()), HttpStatus.CONFLICT);
@@ -38,7 +39,6 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> authenticateUser(
             @RequestBody UserAuthenticationRequests userAuthenticationRequests){
-
        try {
            String jwt = userService.authenticateUser(userAuthenticationRequests);
            return new ResponseEntity<>(

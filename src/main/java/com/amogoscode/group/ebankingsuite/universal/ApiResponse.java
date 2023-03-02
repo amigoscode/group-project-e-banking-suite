@@ -1,12 +1,11 @@
-package com.amogoscode.groupe.ebankingsuite.universal;
-
-import lombok.EqualsAndHashCode;
+package com.amogoscode.group.ebankingsuite.universal;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class ApiResponse {
 
     private String message;

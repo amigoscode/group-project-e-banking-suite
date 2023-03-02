@@ -1,4 +1,4 @@
-package com.amogoscode.groupe.ebankingsuite.User;
+package com.amogoscode.group.ebankingsuite.user;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

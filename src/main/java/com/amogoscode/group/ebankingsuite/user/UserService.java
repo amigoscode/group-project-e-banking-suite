@@ -1,14 +1,13 @@
-package com.amogoscode.groupe.ebankingsuite.User;
+package com.amogoscode.group.ebankingsuite.user;
 
-import com.amogoscode.groupe.ebankingsuite.User.resquests.UserAuthenticationRequests;
-import com.amogoscode.groupe.ebankingsuite.User.resquests.UserRegistrationRequest;
-import com.amogoscode.groupe.ebankingsuite.config.JWTService;
-import com.amogoscode.groupe.ebankingsuite.exception.InvalidAuthenticationException;
-import com.amogoscode.groupe.ebankingsuite.exception.ResourceNotFoundException;
+import com.amogoscode.group.ebankingsuite.config.JWTService;
+import com.amogoscode.group.ebankingsuite.exception.InvalidAuthenticationException;
+import com.amogoscode.group.ebankingsuite.exception.ResourceNotFoundException;
+import com.amogoscode.group.ebankingsuite.user.resquests.UserAuthenticationRequests;
+import com.amogoscode.group.ebankingsuite.user.resquests.UserRegistrationRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import javax.naming.AuthenticationException;
 import java.util.Optional;
 
 @Service
@@ -18,6 +17,7 @@ public class UserService {
     private static final BCryptPasswordEncoder bCryptPasswordEncoder =
             new BCryptPasswordEncoder();
 
+    @Autowired
     public UserService(UserRepository userRepository, JWTService jwtService) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
@@ -26,16 +26,15 @@ public class UserService {
     //this service creates a new user provided the email does not exist
     //later this method will be updated to invoke the create user account service to create an account for the user
     public void createNewUser(UserRegistrationRequest userRegistrationRequest){
-        if(!userRepository.existsByEmailAddress(userRegistrationRequest.emailAddress())){
-            userRepository.save(new User(
-                    userRegistrationRequest.fullName(),
-                    userRegistrationRequest.emailAddress(),
-                    bCryptPasswordEncoder.encode(userRegistrationRequest.password()),
-                    true
-            ));
-            return;
+        if(userRepository.existsByEmailAddress(userRegistrationRequest.emailAddress())){
+            throw new IllegalArgumentException("email address is taken");
         }
-        throw new IllegalArgumentException("email address is taken");
+        userRepository.save(new User(
+                userRegistrationRequest.fullName(),
+                userRegistrationRequest.emailAddress(),
+                bCryptPasswordEncoder.encode(userRegistrationRequest.password()),
+                true
+        ));
     }
 
     public boolean passwordMatches(String rawPassword, String encodedPassword){

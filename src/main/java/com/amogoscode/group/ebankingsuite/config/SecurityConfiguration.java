@@ -1,4 +1,4 @@
-package com.amogoscode.groupe.ebankingsuite.config;
+package com.amogoscode.group.ebankingsuite.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

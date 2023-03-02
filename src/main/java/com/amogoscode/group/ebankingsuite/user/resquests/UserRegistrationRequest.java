@@ -1,4 +1,4 @@
-package com.amogoscode.groupe.ebankingsuite.User.resquests;
+package com.amogoscode.group.ebankingsuite.user.resquests;
 
 public record UserRegistrationRequest(
         String fullName,

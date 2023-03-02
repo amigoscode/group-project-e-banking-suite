@@ -1,4 +1,4 @@
-package com.amogoscode.groupe.ebankingsuite.User;
+package com.amogoscode.group.ebankingsuite.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

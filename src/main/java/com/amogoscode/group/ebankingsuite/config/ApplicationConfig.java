@@ -1,6 +1,6 @@
-package com.amogoscode.groupe.ebankingsuite.config;
+package com.amogoscode.group.ebankingsuite.config;
 
-import com.amogoscode.groupe.ebankingsuite.User.UserRepository;
+import com.amogoscode.group.ebankingsuite.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

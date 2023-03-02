@@ -1,4 +1,4 @@
-package com.amogoscode.groupe.ebankingsuite.exception;
+package com.amogoscode.group.ebankingsuite.exception;
 
 public class ResourceExistsException extends RuntimeException{
 

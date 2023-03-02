@@ -1,9 +1,9 @@
-package com.amogoscode.groupe.ebankingsuite.User;
+package com.amogoscode.group.ebankingsuite.user;
 
-import com.amogoscode.groupe.ebankingsuite.User.resquests.UserAuthenticationRequests;
-import com.amogoscode.groupe.ebankingsuite.User.resquests.UserRegistrationRequest;
-import com.amogoscode.groupe.ebankingsuite.config.JWTService;
-import com.amogoscode.groupe.ebankingsuite.universal.ApiResponse;
+import com.amogoscode.group.ebankingsuite.user.resquests.UserAuthenticationRequests;
+import com.amogoscode.group.ebankingsuite.user.resquests.UserRegistrationRequest;
+import com.amogoscode.group.ebankingsuite.config.JWTService;
+import com.amogoscode.group.ebankingsuite.universal.ApiResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -29,19 +28,16 @@ class UserControllerTest {
     private UserService userService;
     @Mock
     private JWTService jwtService;
-    @Mock
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
     private UserController userController;
 
     @BeforeEach
     public void setUp() {
-        this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
         this.userService = new UserService(userRepository, jwtService);
         this.userController = new UserController(userService);
     }
 
     @Test
-    void willReturn200WhenSavingUser(){
+    void willReturn202WhenSavingUser(){
         //given
         UserRegistrationRequest userRequest = new UserRegistrationRequest(
                 "lawal",
@@ -53,13 +49,14 @@ class UserControllerTest {
 
         given(userRepository.existsByEmailAddress(userRequest.emailAddress())).willReturn(false);
 
-
+        //when
+        //the
         ResponseEntity<ApiResponse> responseEntity = userController.saveUser(userRequest);
-        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(200);
+        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(201);
     }
 
     @Test
-    void willReturn409WhenSavingUserWhenEmailExists(){
+    void willReturn409WhenEmailExistsWhileSavingNewUser(){
         //given
         UserRegistrationRequest userRequest = new UserRegistrationRequest(
                 "lawal",
@@ -79,7 +76,7 @@ class UserControllerTest {
     }
 
     @Test
-    void willReturn200AndJWTWhenUsernameAndPasswordMatchForAuthentication(){
+    void willReturn200WhenUsernameAndPasswordMatchForAuthentication(){
         //given
         UserAuthenticationRequests authenticationRequests = new UserAuthenticationRequests(
                 "larwal@mail.com",
@@ -87,7 +84,6 @@ class UserControllerTest {
         );
         MockHttpServletRequest request = new MockHttpServletRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
         User mockUser = new User(
                 "lawal Olakunle",
                 "larwal@mail.com",
@@ -97,6 +93,8 @@ class UserControllerTest {
         given(userRepository.findByEmailAddress(authenticationRequests.emailAddress())).willReturn(Optional.of(mockUser));
 
 
+        //when
+        //then
         ResponseEntity<ApiResponse> responseEntity = userController.authenticateUser(authenticationRequests);
         assertThat(responseEntity.getStatusCodeValue()).isEqualTo(200);
     }

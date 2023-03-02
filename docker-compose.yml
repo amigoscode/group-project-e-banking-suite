@@ -1,6 +1,6 @@
 services:
   db:
-    container_name: postgres
+    container_name: postgres_e_banking
     image: postgres
     environment:
       POSTGRES_USER: amigoscode
