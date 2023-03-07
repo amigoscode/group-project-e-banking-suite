@@ -1,10 +1,12 @@
-package com.amigoscode.group.ebankingsuite.Account;
+package com.amigoscode.group.ebankingsuite.account;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/accounts")
@@ -12,36 +14,37 @@ public class AccountController {
 
     private final AccountService accountService;
 
+    @Autowired
     public AccountController(AccountService accountService) {
         this.accountService = accountService;
     }
 
-    @PostMapping("/account-profile")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Optional<Account>> getAccountByUserId(@PathVariable("userId") Integer userId) {
+        Optional<Account> account = accountService.getAccountByUserId(userId);
+        return new ResponseEntity<>(account, HttpStatus.OK);
+    }
+
+    @PostMapping("/profile")
     public ResponseEntity<Account> createAccount(@RequestBody Account account) {
         Account createdAccount = accountService.createAccount(account);
         return new ResponseEntity<>(createdAccount, HttpStatus.CREATED);
     }
 
-    @GetMapping("/account-all")
+    @GetMapping("/all")
     public ResponseEntity<List<Account>> getAllAccounts() {
         List<Account> accounts = accountService.getAllAccounts();
         return new ResponseEntity<>(accounts, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Account> getAccountById(@PathVariable("id") Integer accountId) {
-        Account account = accountService.getAccountById(accountId);
+    public ResponseEntity<Account> findAccountById(@PathVariable("id") Integer accountId) {
+        Account account = accountService.findAccountById(accountId);
         if (account != null) {
             return new ResponseEntity<>(account, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Account>> getAccountsByUserId(@PathVariable("userId") Integer userId) {
-        List<Account> accounts = accountService.getAccountsByUserId(userId);
-        return new ResponseEntity<>(accounts, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")

@@ -1,10 +1,10 @@
-package com.amigoscode.group.ebankingsuite.Account;
+package com.amigoscode.group.ebankingsuite.account;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -24,22 +24,23 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
-    public Account getAccountById(Integer accountId) {
+    public Account findAccountById(Integer accountId) {
         return accountRepository.findById(accountId).orElse(null);
     }
 
-    public List<Account> getAccountsByUserId(Integer userId) {
+    public Optional<Account> getAccountByUserId(Integer userId) {
         return accountRepository.findByUserId(userId);
     }
 
     public Account updateAccount(Integer accountId, Account account) {
         Account existingAccount = accountRepository.findById(accountId).orElse(null);
-        if (existingAccount != null) {
+        if (accountRepository.existsById(accountId)) {
+            assert existingAccount != null;
             existingAccount.setUserId(account.getUserId());
             existingAccount.setAccountBalance(account.getAccountBalance());
             existingAccount.setAccountStatus(account.getAccountStatus());
             existingAccount.setTierLevel(account.getTierLevel());
-            existingAccount.setDateUpdated(new Date());
+            existingAccount.setUpdatedAt(account.getUpdatedAt());
             return accountRepository.save(existingAccount);
         }
         return null;
