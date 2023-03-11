@@ -6,6 +6,7 @@ services:
       POSTGRES_USER: amigoscode
       POSTGRES_PASSWORD: postgrespw
       PGDATA: /data/postgres
+      POSTGRES_DB: e_banking_suite
     volumes:
       - db:/var/lib/postgresql
     ports:

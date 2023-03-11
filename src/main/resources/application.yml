@@ -10,9 +10,9 @@ spring:
     password: postgrespw
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
-      hibernate: dialect:org.hibernate.dialect.PostgreSQLDialect
+      hibernate: dialect:org.hibernate.dialect.PostgresSQLDialect
       format_sql: true
     show-sql: false
   main:
