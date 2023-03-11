@@ -1,0 +1,15 @@
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5332/e_banking_suite_test
+    username: amigoscode
+    password: postgrespw
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate: dialect:org.hibernate.dialect.PostgreSQLDialect
+      format_sql: true
+    show-sql: true
+  main:
+    web-application-type: servlet
