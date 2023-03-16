@@ -7,10 +7,18 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * The type Account.
+ */
 @Entity
 @Table(name = "accounts")
 @Data
 @AllArgsConstructor
+
+/**
+ * This is the class for the account.
+ */
+
 public class Account {
 
     @Id

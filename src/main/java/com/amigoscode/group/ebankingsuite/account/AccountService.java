@@ -16,9 +16,12 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
 
+    private final ClosedAccountRepository closedAccountRepository;
+
     @Autowired
-    public AccountService(AccountRepository accountRepository) {
+    public AccountService(AccountRepository accountRepository, ClosedAccountRepository closedAccountRepository) {
         this.accountRepository = accountRepository;
+        this.closedAccountRepository = closedAccountRepository;
     }
 
     public void createAccount(Account account) {
@@ -67,6 +70,21 @@ public class AccountService {
     public void updateAccount(Account existingAccount) {
         existingAccount.setUpdatedAt(LocalDateTime.now());
         accountRepository.save(existingAccount);
+    }
+
+    /**
+     * This method closes the account by getting the userId from the JWT and the relieving reason
+     * from the request body
+     */
+
+    public void closeAccount(Integer userId, String relievingReason){
+        Account account = getAccountByUserId(userId);
+        account.setAccountStatus(AccountStatus.CLOSED);
+
+        ClosedAccount closedAccount = new ClosedAccount(account, relievingReason);
+        closedAccount.setRelievingReason(relievingReason);
+        closedAccountRepository.save(closedAccount);
+        accountRepository.save(account);
     }
 
 }
