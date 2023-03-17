@@ -24,11 +24,12 @@ class AccountServiceTest {
     @Mock
     private AccountRepository accountRepository;
     private AccountService accountService;
+    private ClosedAccountRepository closedAccountRepository;
 
 
     @BeforeEach
     void setUp() {
-        this.accountService = new AccountService(accountRepository);
+        this.accountService = new AccountService(accountRepository, closedAccountRepository);
     }
 
     @Test

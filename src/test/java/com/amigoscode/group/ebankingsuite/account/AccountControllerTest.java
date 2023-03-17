@@ -26,13 +26,16 @@ class AccountControllerTest {
     private AccountService accountService;
     @Mock
     private AccountRepository accountRepository;
+
+    @Mock
+    private ClosedAccountRepository closedAccountRepository;
     @Mock
     private JWTService jwtService;
     private AccountController accountController;
 
     @BeforeEach
     public void setUp() {
-        this.accountService = new AccountService(accountRepository);
+        this.accountService = new AccountService(accountRepository, closedAccountRepository);
         this.accountController = new AccountController(accountService,jwtService);
     }
 

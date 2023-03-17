@@ -19,8 +19,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 
-/**
- * This is the class for the closed account.
+/*
+  This is the class for the closed account.
  */
 
 public class ClosedAccount {

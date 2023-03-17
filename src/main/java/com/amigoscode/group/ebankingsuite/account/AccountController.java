@@ -23,8 +23,7 @@ public class AccountController {
     }
 
     /**
-     * This controller fetches the user account overview by getting the userId from the JWT
-     *
+     * This controller fetches the user account overview by getting the userId from the JWT token
      *
      */
     @GetMapping("/overview")
