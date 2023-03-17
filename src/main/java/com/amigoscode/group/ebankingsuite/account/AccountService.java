@@ -18,15 +18,12 @@ import java.util.Random;
 public class AccountService {
 
     private final AccountRepository accountRepository;
-
-    private final ClosedAccountRepository closedAccountRepository;
     private static final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
 
     @Autowired
-    public AccountService(AccountRepository accountRepository, ClosedAccountRepository closedAccountRepository) {
+    public AccountService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
-        this.closedAccountRepository = closedAccountRepository;
     }
 
     @Async

@@ -4,7 +4,6 @@ import com.amigoscode.group.ebankingsuite.account.request.AccountTransactionPinU
 import com.amigoscode.group.ebankingsuite.account.response.AccountOverviewResponse;
 import com.amigoscode.group.ebankingsuite.exception.AccountNotClearedException;
 import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,12 +26,11 @@ class AccountServiceTest {
     @Mock
     private AccountRepository accountRepository;
     private AccountService accountService;
-    private ClosedAccountRepository closedAccountRepository;
 
 
     @BeforeEach
     void setUp() {
-        this.accountService = new AccountService(accountRepository, closedAccountRepository);
+        this.accountService = new AccountService(accountRepository);
     }
 
     @Test
