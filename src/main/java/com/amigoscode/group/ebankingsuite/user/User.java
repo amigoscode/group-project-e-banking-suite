@@ -46,7 +46,7 @@ public class User implements UserDetails {
     }
 
     /**
-     * This constructor is for test purpose. Id mush always be auto generated
+     * This constructor is for test purpose. Id must always be auto generated
      */
     public User(Integer id,String fullName, String emailAddress, String password, boolean isNotBlocked) {
         this.id = id;

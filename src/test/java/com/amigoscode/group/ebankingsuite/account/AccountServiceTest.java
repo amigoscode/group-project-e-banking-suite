@@ -1,7 +1,10 @@
 package com.amigoscode.group.ebankingsuite.account;
 
+import com.amigoscode.group.ebankingsuite.account.request.AccountTransactionPinUpdateModel;
 import com.amigoscode.group.ebankingsuite.account.response.AccountOverviewResponse;
+import com.amigoscode.group.ebankingsuite.exception.AccountNotClearedException;
 import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
+import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,11 +27,12 @@ class AccountServiceTest {
     @Mock
     private AccountRepository accountRepository;
     private AccountService accountService;
+    private ClosedAccountRepository closedAccountRepository;
 
 
     @BeforeEach
     void setUp() {
-        this.accountService = new AccountService(accountRepository);
+        this.accountService = new AccountService(accountRepository, closedAccountRepository);
     }
 
     @Test
@@ -111,6 +115,101 @@ class AccountServiceTest {
         );
 
     }
+
+    @Test
+    void canCloseAccountWhenAccountIsCleared(){
+        //given
+        int userId = 1;
+        Account userAccount = new Account(
+                1,
+                new BigDecimal(0),
+                AccountStatus.ACTIVATED,
+                "6767576476",
+                Tier.LEVEL1,
+                "8493"
+        );
+        given(accountRepository.findAccountByUserId(userId)).willReturn(Optional.of(userAccount));
+
+        //when
+        accountService.closeAccount(userId);
+        ArgumentCaptor<Account> accountArgumentCaptor = ArgumentCaptor.forClass(Account.class);
+        verify(accountRepository).save(accountArgumentCaptor.capture());
+
+        //then
+        assertThat(accountArgumentCaptor.getValue().getAccountStatus()).isEqualTo(AccountStatus.CLOSED);
+
+    }
+
+    @Test
+    void willThrowAccountNotClearedExceptionWhenClosingAccountThatIsNotCleared(){
+        //given
+        int userId = 1;
+        Account userAccount = new Account(
+                1,
+                new BigDecimal(10),
+                AccountStatus.ACTIVATED,
+                "6767576476",
+                Tier.LEVEL1,
+                "8493"
+        );
+        given(accountRepository.findAccountByUserId(userId)).willReturn(Optional.of(userAccount));
+
+        //when
+        //then
+        assertThatThrownBy(() -> accountService.closeAccount(userId))
+                .isInstanceOf(AccountNotClearedException.class);
+
+    }
+
+    @Test
+    void canUpdateTransactionPinIfPinConformsToStandard(){
+        //given
+        AccountTransactionPinUpdateModel pinUpdateModel =
+                new AccountTransactionPinUpdateModel("1234");
+        int userId = 1;
+        Account userAccount = new Account(
+                1,
+                new BigDecimal(10),
+                AccountStatus.ACTIVATED,
+                "6767576476",
+                Tier.LEVEL1,
+                "8493"
+        );
+        given(accountRepository.findAccountByUserId(userId)).willReturn(Optional.of(userAccount));
+
+        //when
+        accountService.updateAccountTransactionPin(userId,pinUpdateModel);
+        ArgumentCaptor<Account> accountArgumentCaptor = ArgumentCaptor.forClass(Account.class);
+        verify(accountRepository).save(accountArgumentCaptor.capture());
+
+        //then
+        assertThat(accountArgumentCaptor.getValue())
+                .isEqualToComparingOnlyGivenFields(userAccount,
+                        "id","accountBalance"
+                        ,"accountStatus","accountNumber","tierLevel");
+    }
+    @Test
+    void willThrowIllegalArgumentExceptionIfPinDoesNotConformToStandardWhenUpdatingTransactionPin(){
+        //given
+        AccountTransactionPinUpdateModel pinUpdateModel =
+                new AccountTransactionPinUpdateModel("12344");
+        int userId = 1;
+        Account userAccount = new Account(
+                1,
+                new BigDecimal(10),
+                AccountStatus.ACTIVATED,
+                "6767576476",
+                Tier.LEVEL1,
+                "8433"
+        );
+        given(accountRepository.findAccountByUserId(userId)).willReturn(Optional.of(userAccount));
+
+        //when
+        //then
+        assertThatThrownBy(() -> accountService.updateAccountTransactionPin(userId,pinUpdateModel))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
 
 //    @Test
 //    void updateAccount() {

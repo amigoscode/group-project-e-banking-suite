@@ -88,6 +88,10 @@ public class UserService {
         throw new ResourceNotFoundException("user not found");
     }
 
+    public void blockUser(String userId){
+
+    }
+
     public String encodePassword(String password){
         return bCryptPasswordEncoder.encode(password);
     }

@@ -14,7 +14,9 @@ import java.time.LocalDateTime;
 @Table(name = "accounts")
 @Data
 @AllArgsConstructor
-
+/*
+  This is the class for the account.
+ */
 public class Account {
 
     @Id
