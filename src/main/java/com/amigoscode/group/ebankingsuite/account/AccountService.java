@@ -3,8 +3,10 @@ package com.amigoscode.group.ebankingsuite.account;
 import com.amigoscode.group.ebankingsuite.account.response.AccountOverviewResponse;
 import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +26,7 @@ public class AccountService {
         this.closedAccountRepository = closedAccountRepository;
     }
 
+    @Async
     public void createAccount(Account account) {
         account.setAccountNumber(generateAccountNumber());
         account.setTierLevel(Tier.LEVEL1);
@@ -37,12 +40,11 @@ public class AccountService {
      */
     private String generateAccountNumber(){
         Random random = new SecureRandom();
-        String accountNumber = "";
+        StringBuilder accountNumber = new StringBuilder();
         for (int i = 0; i <= 9; i++) {
-            accountNumber = accountNumber.
-                    concat(String.valueOf(Math.abs(random.nextInt(9))));
+            accountNumber.append(Math.abs(random.nextInt(9)));
         }
-        return accountNumber;
+        return accountNumber.toString();
     }
 
     public List<Account> getAllAccounts() {
@@ -76,15 +78,16 @@ public class AccountService {
      * This method closes the account by getting the userId from the JWT and the relieving reason
      * from the request body
      */
-
     public void closeAccount(Integer userId, String relievingReason){
         Account account = getAccountByUserId(userId);
-        account.setAccountStatus(AccountStatus.CLOSED);
+        if(noPendingOrAvailableFundInTheAccount(account)) {
+            account.setAccountStatus(AccountStatus.CLOSED);
+        }
+        updateAccount(account);
+    }
 
-        ClosedAccount closedAccount = new ClosedAccount(account, relievingReason);
-        closedAccount.setRelievingReason(relievingReason);
-        closedAccountRepository.save(closedAccount);
-        accountRepository.save(account);
+    private boolean noPendingOrAvailableFundInTheAccount(Account account){
+        return account.getAccountBalance().equals(BigDecimal.ZERO);
     }
 
 }

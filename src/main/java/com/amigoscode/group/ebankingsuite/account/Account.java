@@ -15,10 +15,6 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 
-/**
- * This is the class for the account.
- */
-
 public class Account {
 
     @Id
