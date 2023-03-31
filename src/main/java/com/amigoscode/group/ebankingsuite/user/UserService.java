@@ -12,6 +12,7 @@ import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -42,7 +43,7 @@ public class UserService {
      * this service creates a new user provided the email does not exist and also invokes the account
      * service to create a new account for the user
      */
-
+    @Transactional
     public void createNewUser(UserRegistrationRequest userRegistrationRequest){
         if(userRepository.existsByEmailAddress(userRegistrationRequest.emailAddress())){
             throw new IllegalArgumentException("email address is taken");

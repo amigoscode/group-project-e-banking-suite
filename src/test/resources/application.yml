@@ -1,12 +1,12 @@
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5332/e_banking_suite_test
+    url: jdbc:postgresql://localhost:5323/e_banking_suite_test
     username: amigoscode
     password: postgrespw
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
     properties:
       hibernate: dialect:org.hibernate.dialect.PostgreSQLDialect
       format_sql: true

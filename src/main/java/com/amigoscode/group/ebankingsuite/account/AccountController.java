@@ -26,7 +26,6 @@ public class AccountController {
 
     /**
      * This controller fetches the user account overview by getting the userId from the JWT token
-     *
      */
     @GetMapping("/overview")
     public ResponseEntity<ApiResponse> getUserAccountOverview(
@@ -46,7 +45,7 @@ public class AccountController {
      * This controller allows user to close their account by getting the userId from the JWT and the relieving reason
      * from the request body
      */
-    @PostMapping("/close")
+    @DeleteMapping("/close")
     public ResponseEntity<ApiResponse> closeAccount(
             @RequestHeader("Authorization") String jwt) {
         try {
@@ -59,14 +58,14 @@ public class AccountController {
             return new ResponseEntity<>(new ApiResponse(e.getMessage()), HttpStatus.NOT_ACCEPTABLE);
         }
     }
-    @PostMapping("/update/pin")
+    @PutMapping("/transaction-pin")
     public ResponseEntity<ApiResponse> updateAccountTransactionPin(
             @RequestHeader("Authorization") String jwt,
             @RequestBody AccountTransactionPinUpdateModel pinUpdateModel) {
         try {
             accountService.updateAccountTransactionPin(
                     jwtService.extractUserIdFromToken(jwt),pinUpdateModel);
-            return new ResponseEntity<>(new ApiResponse("account closed successfully"), HttpStatus.OK);
+            return new ResponseEntity<>(new ApiResponse("transaction pin set"), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(new ApiResponse(e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {

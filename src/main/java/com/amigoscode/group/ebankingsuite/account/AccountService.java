@@ -3,16 +3,16 @@ package com.amigoscode.group.ebankingsuite.account;
 import com.amigoscode.group.ebankingsuite.account.request.AccountTransactionPinUpdateModel;
 import com.amigoscode.group.ebankingsuite.account.response.AccountOverviewResponse;
 import com.amigoscode.group.ebankingsuite.exception.AccountNotClearedException;
+import com.amigoscode.group.ebankingsuite.exception.InsufficientBalanceException;
 import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class AccountService {
@@ -38,17 +38,17 @@ public class AccountService {
      * This method generates random 10 digit values and convert to string
      * for use as account number for accounts
      */
-    private String generateUniqueAccountNumber(){
-        Random random = new SecureRandom();
-        StringBuilder accountNumber = new StringBuilder();
+    private String generateUniqueAccountNumber() {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        int accountNumber;
+        boolean exists;
         do {
-            for (int i = 0; i <= 9; i++) {
-                accountNumber.append(Math.abs(random.nextInt(9)));
-            }
-        }while (accountRepository.existsByAccountNumber(accountNumber.toString()));
-
-        return accountNumber.toString();
+            accountNumber = random.nextInt(1_000_000_000);
+            exists = accountRepository.existsByAccountNumber(String.format("%09d", accountNumber));
+        } while (exists);
+        return String.format("%09d", accountNumber);
     }
+
 
     public Account getAccountByUserId(Integer userId) {
         Optional<Account> account = accountRepository.findAccountByUserId(userId);
@@ -107,6 +107,57 @@ public class AccountService {
         }
         userAccount.setTransactionPin(bCryptPasswordEncoder.encode(pinUpdateModel.transactionPin()));
         updateAccount(userAccount);
+    }
+
+    public void creditAccount(Integer accountId, BigDecimal amount){
+        Optional<Account> receiverAccount = accountRepository.findAccountByAccountNumber(accountId);
+        receiverAccount.ifPresentOrElse(
+                account -> {
+                    account.setAccountBalance(account.getAccountBalance().add(amount));
+                    updateAccount(account);
+                },
+                () ->{
+                    throw new ResourceNotFoundException("Invalid receiver Account");
+                }
+        );
+    }
+
+    public void creditAccount(Account receiverAccount,BigDecimal amount) {
+        receiverAccount.setAccountBalance(receiverAccount.getAccountBalance().add(amount));
+        updateAccount(receiverAccount);
+    }
+
+    public void debitAccount(Integer accountId, BigDecimal amount){
+        Optional<Account> senderAccount = accountRepository.findAccountByAccountNumber(accountId);
+        senderAccount.ifPresentOrElse(
+                account -> {
+                    if(account.getAccountBalance().compareTo(amount)<=0) {
+                        throw new InsufficientBalanceException("Insufficient funds");
+                    }
+                    account.setAccountBalance(account.getAccountBalance().subtract(amount));
+                    updateAccount(account);
+                },
+                () ->{
+                    throw new ResourceNotFoundException("Invalid sender Account");
+                }
+        );
+    }
+
+    public void debitAccount(Account receiverAccount,BigDecimal amount) {
+
+        if(receiverAccount.getAccountBalance().compareTo(amount)<0) {
+            throw new InsufficientBalanceException("Insufficient funds");
+        }
+        receiverAccount.setAccountBalance(receiverAccount.getAccountBalance().subtract(amount));
+        updateAccount(receiverAccount);
+    }
+
+    public Account getAccountById(Integer accountId){
+        Optional<Account> existingAccount = accountRepository.findById(accountId);
+        if(existingAccount.isEmpty()){
+            throw new ResourceNotFoundException("Invalid Account");
+        }
+        return existingAccount.get();
     }
 
 }
