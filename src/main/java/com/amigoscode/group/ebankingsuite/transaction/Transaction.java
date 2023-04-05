@@ -2,12 +2,14 @@ package com.amigoscode.group.ebankingsuite.transaction;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "transactions")
 @Data
+@NoArgsConstructor
 public class Transaction {
 
     @Id

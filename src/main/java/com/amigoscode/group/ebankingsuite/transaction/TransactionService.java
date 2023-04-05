@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Service
@@ -63,7 +65,7 @@ public class TransactionService {
         transactionRepository.save(
                 new Transaction(request.senderAccountId(),
                         request.receiverAccountId(),
-                        generateTransactionReference(),
+                        String.valueOf(1),
                         request.narration(),
                         TransactionStatus.SUCCESS
                         )
@@ -85,5 +87,28 @@ public class TransactionService {
         return builder.toString();
     }
 
+    /**
+     * This method returns a list of transactions for a particular account with status, date and account number
+     */
+
+    public List<Transaction> getAllTransactionsByAccountNumber(TransactionStatus status, LocalDateTime startDate, LocalDateTime endDate, Integer senderAccountNumber, Integer receiverAccountNumber) {
+        if (status == null) {
+            throw new IllegalArgumentException("Transaction status cannot be null");
+        }
+
+        if (senderAccountNumber == null || senderAccountNumber < 0) {
+            throw new IllegalArgumentException("Sender account number cannot be null or negative");
+        }
+
+        if (receiverAccountNumber == null || receiverAccountNumber < 0) {
+            throw new IllegalArgumentException("Receiver account number cannot be null or negative");
+        }
+
+        try {
+            return transactionRepository.findAllByStatusAndCreatedAtBetweenAndSenderAccountNumberOrReceiverAccountNumber(status, startDate, endDate, senderAccountNumber, receiverAccountNumber);
+        } catch (AccountNotActivatedException e) {
+            throw new RuntimeException("Error fetching transactions, enter valid account number and try again.");
+        }
+    }
 
 }

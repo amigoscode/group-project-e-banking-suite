@@ -110,7 +110,7 @@ public class AccountService {
     }
 
     public void creditAccount(Integer accountId, BigDecimal amount){
-        Optional<Account> receiverAccount = accountRepository.findAccountByAccountNumber(accountId);
+        Optional<Account> receiverAccount = accountRepository.findById(accountId);
         receiverAccount.ifPresentOrElse(
                 account -> {
                     account.setAccountBalance(account.getAccountBalance().add(amount));
@@ -128,7 +128,7 @@ public class AccountService {
     }
 
     public void debitAccount(Integer accountId, BigDecimal amount){
-        Optional<Account> senderAccount = accountRepository.findAccountByAccountNumber(accountId);
+        Optional<Account> senderAccount = accountRepository.findById(accountId);
         senderAccount.ifPresentOrElse(
                 account -> {
                     if(account.getAccountBalance().compareTo(amount)<=0) {
