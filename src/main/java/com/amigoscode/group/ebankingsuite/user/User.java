@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -36,12 +37,17 @@ public class User implements UserDetails {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("d/M/yyyy HH:mm:ss");
+
     public User(String fullName, String emailAddress, String password, boolean isNotBlocked) {
         this.fullName = fullName;
         this.emailAddress = emailAddress;
         this.password = password;
-        this.createdAt=LocalDateTime.now();
-        this.updatedAt=LocalDateTime.now();
+        this.createdAt = LocalDateTime.parse(
+                DATE_TIME_FORMATTER.format(LocalDateTime.now()),
+                DATE_TIME_FORMATTER);
+        this.updatedAt = createdAt;
         this.isNotBlocked = isNotBlocked;
     }
 
@@ -53,8 +59,10 @@ public class User implements UserDetails {
         this.fullName = fullName;
         this.emailAddress = emailAddress;
         this.password = password;
-        this.createdAt=LocalDateTime.now();
-        this.updatedAt=LocalDateTime.now();
+        this.createdAt = LocalDateTime.parse(
+                DATE_TIME_FORMATTER.format(LocalDateTime.now()),
+                DATE_TIME_FORMATTER);
+        this.updatedAt = createdAt;
         this.isNotBlocked = isNotBlocked;
     }
 

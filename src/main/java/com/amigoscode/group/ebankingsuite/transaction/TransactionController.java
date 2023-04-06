@@ -16,17 +16,16 @@ import java.time.LocalDateTime;
 public class TransactionController {
 
     private final TransactionService transactionService;
-    private final JWTService jwtService;
 
-    public TransactionController(TransactionService transactionService, JWTService jwtService) {
+    public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
-        this.jwtService = jwtService;
     }
 
     @PostMapping("/send-funds")
     public ResponseEntity<ApiResponse> transferFunds(@RequestBody FundsTransferRequest request){
 
         try {
+            System.out.println("begin");
             transactionService.transferFunds(request);
             return new ResponseEntity<>(new ApiResponse("funds transferred"), HttpStatus.OK);
         }catch (ValueMismatchException | InsufficientBalanceException | IllegalArgumentException e){
