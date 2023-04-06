@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * The type Account.
@@ -40,15 +41,22 @@ public class Account {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("d/M/yyyy HH:mm:ss");
+
     public Account(Integer userId){
         this.setUserId(userId);
-        this.createdAt=LocalDateTime.now();
-        this.updatedAt=LocalDateTime.now();
+        this.createdAt = LocalDateTime.parse(
+                DATE_TIME_FORMATTER.format(LocalDateTime.now()),
+                DATE_TIME_FORMATTER);
+        this.updatedAt = createdAt;
         this.setAccountBalance(new BigDecimal(0));
     }
     public Account(){
-        this.createdAt=LocalDateTime.now();
-        this.updatedAt=LocalDateTime.now();
+        this.createdAt = LocalDateTime.parse(
+                DATE_TIME_FORMATTER.format(LocalDateTime.now()),
+                DATE_TIME_FORMATTER);
+        this.updatedAt = createdAt;
         this.setAccountBalance(new BigDecimal(0));
     }
 
@@ -59,5 +67,9 @@ public class Account {
         this.accountNumber = accountNumber;
         this.tierLevel = tierLevel;
         this.transactionPin = transactionPin;
+        this.createdAt = LocalDateTime.parse(
+                DATE_TIME_FORMATTER.format(LocalDateTime.now()),
+                DATE_TIME_FORMATTER);
+        this.updatedAt = createdAt;
     }
 }

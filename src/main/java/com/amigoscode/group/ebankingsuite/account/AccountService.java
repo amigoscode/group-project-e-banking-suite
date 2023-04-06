@@ -2,6 +2,7 @@ package com.amigoscode.group.ebankingsuite.account;
 
 import com.amigoscode.group.ebankingsuite.account.request.AccountTransactionPinUpdateModel;
 import com.amigoscode.group.ebankingsuite.account.response.AccountOverviewResponse;
+import com.amigoscode.group.ebankingsuite.exception.AccountNotActivatedException;
 import com.amigoscode.group.ebankingsuite.exception.AccountNotClearedException;
 import com.amigoscode.group.ebankingsuite.exception.InsufficientBalanceException;
 import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
@@ -19,7 +20,6 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private static final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-
 
     @Autowired
     public AccountService(AccountRepository accountRepository) {
@@ -48,7 +48,6 @@ public class AccountService {
         } while (exists);
         return String.format("%09d", accountNumber);
     }
-
 
     public Account getAccountByUserId(Integer userId) {
         Optional<Account> account = accountRepository.findAccountByUserId(userId);
@@ -108,56 +107,27 @@ public class AccountService {
         userAccount.setTransactionPin(bCryptPasswordEncoder.encode(pinUpdateModel.transactionPin()));
         updateAccount(userAccount);
     }
-
-    public void creditAccount(Integer accountId, BigDecimal amount){
-        Optional<Account> receiverAccount = accountRepository.findAccountByAccountNumber(accountId);
-        receiverAccount.ifPresentOrElse(
-                account -> {
-                    account.setAccountBalance(account.getAccountBalance().add(amount));
-                    updateAccount(account);
-                },
-                () ->{
-                    throw new ResourceNotFoundException("Invalid receiver Account");
-                }
-        );
-    }
-
     public void creditAccount(Account receiverAccount,BigDecimal amount) {
         receiverAccount.setAccountBalance(receiverAccount.getAccountBalance().add(amount));
         updateAccount(receiverAccount);
     }
+    public Account accountExistsAndIsActivated(String accountNumber){
+        Optional<Account> exitingAccount = accountRepository.findAccountByAccountNumber(accountNumber);
+        if(exitingAccount.isPresent()){
+            if(exitingAccount.get().getAccountStatus().equals(AccountStatus.ACTIVATED)){
+                return exitingAccount.get();
+            }
+            throw new AccountNotActivatedException("Account not activated");
+        }
+        throw new ResourceNotFoundException("Account not found");
 
-    public void debitAccount(Integer accountId, BigDecimal amount){
-        Optional<Account> senderAccount = accountRepository.findAccountByAccountNumber(accountId);
-        senderAccount.ifPresentOrElse(
-                account -> {
-                    if(account.getAccountBalance().compareTo(amount)<=0) {
-                        throw new InsufficientBalanceException("Insufficient funds");
-                    }
-                    account.setAccountBalance(account.getAccountBalance().subtract(amount));
-                    updateAccount(account);
-                },
-                () ->{
-                    throw new ResourceNotFoundException("Invalid sender Account");
-                }
-        );
     }
+    public void debitAccount(Account senderAccount, BigDecimal amount) {
 
-    public void debitAccount(Account receiverAccount,BigDecimal amount) {
-
-        if(receiverAccount.getAccountBalance().compareTo(amount)<0) {
+        if(senderAccount.getAccountBalance().compareTo(amount)<=0) {
             throw new InsufficientBalanceException("Insufficient funds");
         }
-        receiverAccount.setAccountBalance(receiverAccount.getAccountBalance().subtract(amount));
-        updateAccount(receiverAccount);
+        senderAccount.setAccountBalance(senderAccount.getAccountBalance().subtract(amount));
+        updateAccount(senderAccount);
     }
-
-    public Account getAccountById(Integer accountId){
-        Optional<Account> existingAccount = accountRepository.findById(accountId);
-        if(existingAccount.isEmpty()){
-            throw new ResourceNotFoundException("Invalid Account");
-        }
-        return existingAccount.get();
-    }
-
 }

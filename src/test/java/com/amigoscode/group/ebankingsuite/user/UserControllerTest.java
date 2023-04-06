@@ -104,9 +104,10 @@ class UserControllerTest {
 
 
         //when
-        //then
         ResponseEntity<ApiResponse> responseEntity = userController.authenticateUser(authenticationRequests);
-        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(200);
+
+        //then
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test

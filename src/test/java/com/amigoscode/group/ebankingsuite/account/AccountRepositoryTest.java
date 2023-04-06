@@ -33,7 +33,7 @@ class AccountRepositoryTest {
                 AccountStatus.ACTIVATED,
                 "12345456",
                 Tier.LEVEL1,
-                "1234");
+                "$2a$10$j4ogRjGJWnPUrmdE82Mq5ueybC9SxGTCgQkvzzE7uSbYXoKqIMKxa");
         accountRepository.save(testAccount);
 
         //when
@@ -41,5 +41,36 @@ class AccountRepositoryTest {
 
         //then
         assertThat(account.get()).isEqualTo(testAccount);
+    }
+
+    @Test
+    void canFindAccountByAccountNumber() {
+        //given
+        String  accountNumber = "675267538";
+        Account testAccount = new Account(
+                1,
+                new BigDecimal(0),
+                AccountStatus.ACTIVATED,
+                "675267538",
+                Tier.LEVEL1,
+                "$2a$10$j4ogRjGJWnPUrmdE82Mq5ueybC9SxGTCgQkvzzE7uSbYXoKqIMKxa");
+        accountRepository.save(testAccount);
+
+        //when
+        Optional<Account> account = accountRepository.findAccountByAccountNumber(accountNumber);
+
+        //then
+        assertThat(account.get()).isEqualTo(testAccount);
+    }
+
+    @Test
+    void canCheckIfAccountExistsByAccountNumber() {
+        //given
+        String  accountNumber = "675267538";
+        //when
+        boolean status = accountRepository.existsByAccountNumber(accountNumber);
+
+        //then
+        assertThat(status).isFalse();
     }
 }

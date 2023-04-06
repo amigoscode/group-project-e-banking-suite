@@ -2,8 +2,6 @@ package com.amigoscode.group.ebankingsuite.transaction;
 
 import com.amigoscode.group.ebankingsuite.account.Account;
 import com.amigoscode.group.ebankingsuite.account.AccountService;
-import com.amigoscode.group.ebankingsuite.account.AccountStatus;
-import com.amigoscode.group.ebankingsuite.exception.AccountNotActivatedException;
 import com.amigoscode.group.ebankingsuite.exception.ValueMismatchException;
 import com.amigoscode.group.ebankingsuite.transaction.request.FundsTransferRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,25 +29,19 @@ public class TransactionService {
         this.accountService = accountService;
     }
 
-    private boolean isAccountActivated(Account account){
-        if(!account.getAccountStatus().equals(AccountStatus.ACTIVATED)){
-            throw new AccountNotActivatedException("account not activated contact the customer support service");
-        }
-        return true;
-    }
+
     @Transactional
     public void transferFunds(FundsTransferRequest request){
-        if(!request.senderAccountId().equals(request.receiverAccountId())){
-            Account senderAccount = accountService.getAccountById(request.senderAccountId());
-            if(ENCODER.matches(request.transactionPin(),senderAccount.getTransactionPin())){
-                if(isAccountActivated(senderAccount)) {
-                    accountService.debitAccount(request.senderAccountId(), request.amount());
-                    accountService.creditAccount(request.receiverAccountId(), request.amount());
-                    saveNewTransaction(request);
-                    return;
-                }
+        if(!request.senderAccountNumber().equals(request.receiverAccountNumber())){
+            Account senderAccount = accountService.accountExistsAndIsActivated(request.senderAccountNumber());
+            if(ENCODER.matches(request.transactionPin(), senderAccount.getTransactionPin())) {
+                Account receiverAccount = accountService.accountExistsAndIsActivated(request.receiverAccountNumber());
+                accountService.debitAccount(senderAccount, request.amount());
+                accountService.creditAccount(receiverAccount, request.amount());
+                saveNewTransaction(request);
+                return;
             }
-            throw new ValueMismatchException("invalid transaction pin");
+            throw new ValueMismatchException("incorrect transaction pin");
         }
         throw new IllegalArgumentException("sender account cannot be recipient account");
     }
@@ -61,8 +53,9 @@ public class TransactionService {
     @Async
     public void saveNewTransaction(FundsTransferRequest request){
         transactionRepository.save(
-                new Transaction(request.senderAccountId(),
-                        request.receiverAccountId(),
+                new Transaction(request.senderAccountNumber(),
+                        request.receiverAccountNumber(),
+                        request.amount(),
                         generateTransactionReference(),
                         request.narration(),
                         TransactionStatus.SUCCESS
@@ -81,7 +74,7 @@ public class TransactionService {
             for (int i = 0; i < referenceNumberLength; i++) {
                 builder.append(VALUES.charAt(SECURE_RANDOM.nextInt(VALUES.length())));
             }
-        }while (!transactionRepository.existsByReferenceNum(builder.toString()));
+        }while (transactionRepository.existsByReferenceNum(builder.toString()));
         return builder.toString();
     }
 
