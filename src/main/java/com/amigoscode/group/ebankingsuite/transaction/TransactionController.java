@@ -6,6 +6,7 @@ import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
 import com.amigoscode.group.ebankingsuite.exception.ValueMismatchException;
 import com.amigoscode.group.ebankingsuite.transaction.request.FundsTransferRequest;
 import com.amigoscode.group.ebankingsuite.universal.ApiResponse;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,19 +37,18 @@ public class TransactionController {
     }
 
     /**
-     * This controller fetches all transaction by status and date range of a particular account
+     * This method returns all transactions for a particular account number within a date range
      */
-    @GetMapping("/{accountNumber}/transaction-history")
-    public ResponseEntity<ApiResponse> getTransactionsByAccountNumber(@PathVariable String accountNumber,
+    @GetMapping("/transaction-history")
+    public ResponseEntity<ApiResponse> getAllTransactionsByAccountNumber(
             @RequestParam TransactionStatus status,
-            @RequestParam LocalDateTime startDate,
-            @RequestParam LocalDateTime endDate,
-            @RequestParam Integer senderAccountNumber,
-            @RequestParam Integer receiverAccountNumber) {
+            @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss.SSSSSS") LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss.SSSSSS") LocalDateTime endDate,
+            @RequestParam String accountNumber,
+            @RequestHeader("Authorization") String jwt) {
         try {
-            return new ResponseEntity<>(new ApiResponse("transactions",
-                    transactionService.getAllTransactionsByAccountNumber(status, startDate, endDate, senderAccountNumber, receiverAccountNumber)),
-                    HttpStatus.OK);
+            return new ResponseEntity<>(new ApiResponse("all transactions",
+                    transactionService.getAllTransactionsByAccountNumber(status, startDate, endDate, accountNumber)), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(new ApiResponse(e.getMessage()), HttpStatus.NOT_FOUND);
         }

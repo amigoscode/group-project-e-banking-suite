@@ -2,6 +2,7 @@ package com.amigoscode.group.ebankingsuite.transaction;
 
 import com.amigoscode.group.ebankingsuite.account.Account;
 import com.amigoscode.group.ebankingsuite.account.AccountService;
+import com.amigoscode.group.ebankingsuite.exception.AccountNotActivatedException;
 import com.amigoscode.group.ebankingsuite.exception.ValueMismatchException;
 import com.amigoscode.group.ebankingsuite.transaction.request.FundsTransferRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -76,32 +78,33 @@ public class TransactionService {
             for (int i = 0; i < referenceNumberLength; i++) {
                 builder.append(VALUES.charAt(SECURE_RANDOM.nextInt(VALUES.length())));
             }
-        }while (!transactionRepository.existsByReferenceNum(builder.toString()));
+        }while (transactionRepository.existsByReferenceNum(builder.toString()));
         return builder.toString();
     }
 
     /**
-     * This method returns a list of transactions for a particular account with status, date and account number
+     * This method returns a list of transactions of an account that are in a particular status and date range
      */
-
-    public List<Transaction> getAllTransactionsByAccountNumber(TransactionStatus status, LocalDateTime startDate, LocalDateTime endDate, Integer senderAccountNumber, Integer receiverAccountNumber) {
+    public List<Transaction> getAllTransactionsByAccountNumber(TransactionStatus status, LocalDateTime startDate, LocalDateTime endDate, String accountNumber) {
         if (status == null) {
             throw new IllegalArgumentException("Transaction status cannot be null");
         }
 
-        if (senderAccountNumber == null || senderAccountNumber < 0) {
-            throw new IllegalArgumentException("Sender account number cannot be null or negative");
-        }
-
-        if (receiverAccountNumber == null || receiverAccountNumber < 0) {
-            throw new IllegalArgumentException("Receiver account number cannot be null or negative");
+        if (accountNumber == null || Integer.parseInt(accountNumber) < 0) {
+            throw new IllegalArgumentException("Account number cannot be null or negative");
         }
 
         try {
-            return transactionRepository.findAllByStatusAndCreatedAtBetweenAndSenderAccountNumberOrReceiverAccountNumber(status, startDate, endDate, senderAccountNumber, receiverAccountNumber);
+            List<Transaction> senderTransactions = transactionRepository.findAllByStatusAndCreatedAtBetweenAndSenderAccountNumber(status, startDate, endDate, accountNumber);
+            List<Transaction> receiverTransactions = transactionRepository.findAllByStatusAndCreatedAtBetweenAndReceiverAccountNumber(status, startDate, endDate, accountNumber);
+
+            List<Transaction> result = new ArrayList<>();
+            result.addAll(senderTransactions);
+            result.addAll(receiverTransactions);
+
+            return result;
         } catch (AccountNotActivatedException e) {
             throw new RuntimeException("Error fetching transactions, enter valid account number and try again.");
         }
     }
-
 }
