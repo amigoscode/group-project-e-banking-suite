@@ -2,6 +2,7 @@ package com.amigoscode.group.ebankingsuite.user;
 
 import com.amigoscode.group.ebankingsuite.account.AccountService;
 import com.amigoscode.group.ebankingsuite.config.JWTService;
+import com.amigoscode.group.ebankingsuite.exception.ResourceExistsException;
 import com.amigoscode.group.ebankingsuite.exception.ValueMismatchException;
 import com.amigoscode.group.ebankingsuite.user.requests.ChangePasswordRequest;
 import com.amigoscode.group.ebankingsuite.user.requests.UserAuthenticationRequests;
@@ -65,7 +66,7 @@ class UserServiceTest {
     }
 
     @Test
-    void willThrowIllegalArgumentExceptionWhenEmailAddressIsNotUniqueWhileSavingUser(){
+    void willThrowResourceExistsExceptionWhenEmailAddressIsNotUniqueWhileSavingUser(){
         //given
         UserRegistrationRequest testRequest = new UserRegistrationRequest(
                 "pen tami",
@@ -78,7 +79,7 @@ class UserServiceTest {
         //that
         System.out.println("here");
         assertThatThrownBy(()-> userService.createNewUser(testRequest))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceExistsException.class)
                 .hasMessage("email address is taken");
     }
 

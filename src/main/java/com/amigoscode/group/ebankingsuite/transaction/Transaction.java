@@ -2,6 +2,7 @@ package com.amigoscode.group.ebankingsuite.transaction;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NonNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,15 +22,22 @@ public class Transaction {
             generator = "transaction_id_sequence"
     )
     private Integer id;
+    @NonNull
     private String senderAccountNumber;
+    @NonNull
     private String receiverAccountNumber;
 
+    @NonNull
     private String senderName;
+    @NonNull
     private String receiverName;
+    @NonNull
     private BigDecimal amount;
+    @NonNull
     private String referenceNum;
     private String description;
     @Enumerated(EnumType.STRING)
+    @NonNull
     private TransactionStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -2,7 +2,6 @@ package com.amigoscode.group.ebankingsuite.transaction;
 
 import com.amigoscode.group.ebankingsuite.account.Account;
 import com.amigoscode.group.ebankingsuite.account.AccountService;
-import com.amigoscode.group.ebankingsuite.exception.ResourceExistsException;
 import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
 import com.amigoscode.group.ebankingsuite.exception.ValueMismatchException;
 import com.amigoscode.group.ebankingsuite.transaction.request.FundsTransferRequest;
@@ -17,7 +16,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -142,7 +140,6 @@ public class TransactionService {
         }else if(transaction.getSenderAccountNumber().equals(userAccountNumber)){
             return TransactionType.DEBIT;
         }
-        throw new IllegalArgumentException("error processing cannot determine transaction type");
+           throw new IllegalArgumentException("error processing cannot determine transaction type");
     }
-
 }

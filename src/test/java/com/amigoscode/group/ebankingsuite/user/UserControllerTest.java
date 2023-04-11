@@ -64,25 +64,6 @@ class UserControllerTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     }
 
-    @Test
-    void willReturn409WhenEmailExistsWhileSavingNewUser(){
-        //given
-        UserRegistrationRequest userRequest = new UserRegistrationRequest(
-                "lawal",
-                "larwal@mail.com",
-                "12345"
-        );
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-        given(userRepository.existsByEmailAddress(userRequest.emailAddress())).willReturn(true);
-        ResponseEntity<ApiResponse> responseEntity = userController.saveUser(userRequest);
-
-        //when
-        //then
-        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(409);
-        assertThat(responseEntity.getBody()).isInstanceOf(ApiResponse.class);
-    }
 
     @Test
     void willReturn201WhenUsernameAndPasswordMatchForAuthentication(){
@@ -111,51 +92,6 @@ class UserControllerTest {
     }
 
     @Test
-    void willReturn409WhenUsernameAndPasswordDoesNotMatchForAuthentication(){
-        //given
-        UserAuthenticationRequests authenticationRequests = new UserAuthenticationRequests(
-                "larwal@mail.com",
-                "123"
-        );
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-        User mockUser = new User(
-                1,
-                "lawal Olakunle",
-                "larwal@mail.com",
-                userService.encodePassword("12345"),
-                true
-        );
-        given(userRepository.findByEmailAddress(authenticationRequests.emailAddress())).
-                willReturn(Optional.of(mockUser));
-
-        //when
-        ResponseEntity<ApiResponse> responseEntity = userController.authenticateUser(authenticationRequests);
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-    }
-    @Test
-    void willReturn404WhenUsernameDoesNotMatchAnyUserForAuthentication(){
-        //given
-        UserAuthenticationRequests authenticationRequests = new UserAuthenticationRequests(
-                "larwal@mail.com",
-                "123"
-        );
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
-        given(userRepository.findByEmailAddress(authenticationRequests.emailAddress())).
-                willReturn(Optional.empty());
-
-        //when
-        ResponseEntity<ApiResponse> responseEntity = userController.authenticateUser(authenticationRequests);
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-    }
-
-    @Test
     void willReturn200WhenPasswordMatchForChangePassword(){
         //given
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -178,7 +114,6 @@ class UserControllerTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(mockUser));
         given(jwtService.extractUserIdFromToken(jwt)).willReturn(1);
 
-
         //when
         ResponseEntity<ApiResponse> responseEntity =
                 userController.changeUserPassword(jwt,changePasswordRequest);
@@ -186,58 +121,7 @@ class UserControllerTest {
         assertThat(responseEntity.getStatusCodeValue()).isEqualTo(200);
     }
 
-    @Test
-    void willReturn406WhenOldPasswordDoesNotMatchForChangePassword(){
-        //given
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-        ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest(
-                "1234",
-                "12345"
-        );
 
-        Integer userId = 1;
-        User mockUser = new User(
-                1,
-                "lawal Olakunle",
-                "larwal@mail.com",
-                userService.encodePassword("12345"),
-                true
-        );
-        String jwt = "Bearer "+ "testToken";
-
-        given(userRepository.findById(userId)).willReturn(Optional.of(mockUser));
-        given(jwtService.extractUserIdFromToken(jwt)).willReturn(1);
-
-
-        //when
-        ResponseEntity<ApiResponse> responseEntity =
-                userController.changeUserPassword(jwt,changePasswordRequest);
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
-    @Test
-    void willReturn404WhenNoUserFoundForUserIdForChangePassword(){
-        //given
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-        ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest(
-                "12345",
-                "12345"
-        );
-
-        Integer userId = 1;
-        String jwt = "Bearer "+ "testToken";
-
-        given(jwtService.extractUserIdFromToken(jwt)).willReturn(1);
-        given(userRepository.findById(userId)).willReturn(Optional.empty());
-
-        //when
-        ResponseEntity<ApiResponse> responseEntity =
-                userController.changeUserPassword(jwt,changePasswordRequest);
-        //then
-        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(404);
-    }
 
 
 

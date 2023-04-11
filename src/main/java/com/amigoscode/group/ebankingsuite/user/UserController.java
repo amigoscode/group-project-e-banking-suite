@@ -11,6 +11,7 @@ import com.amigoscode.group.ebankingsuite.universal.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,7 +28,7 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity<ApiResponse> saveUser(@RequestBody UserRegistrationRequest request){
+    public ResponseEntity<ApiResponse> saveUser(@RequestBody @Validated UserRegistrationRequest request){
             userService.createNewUser(request);
             return  new ResponseEntity<>(
                     new ApiResponse("user created successfully"), HttpStatus.CREATED);
@@ -35,7 +36,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> authenticateUser(
-            @RequestBody UserAuthenticationRequests userAuthenticationRequests){
+            @RequestBody @Validated UserAuthenticationRequests userAuthenticationRequests){
 
            String jwt = userService.authenticateUser(userAuthenticationRequests);
            return new ResponseEntity<>(
@@ -44,7 +45,7 @@ public class UserController {
 
     @PutMapping("/change-password")
     public ResponseEntity<ApiResponse> changeUserPassword(@RequestHeader("Authorization") String jwt,
-                                                          @RequestBody ChangePasswordRequest request){
+                                                          @RequestBody @Validated ChangePasswordRequest request){
         userService.changeUserPassword(request,jwtService.extractUserIdFromToken(jwt));
         return new ResponseEntity<>(new ApiResponse("password changed"),HttpStatus.OK);
     }

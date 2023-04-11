@@ -13,4 +13,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
     Slice<Transaction> findAllByStatusAndCreatedAtBetweenAndSenderAccountNumberOrReceiverAccountNumber(
             TransactionStatus status,LocalDateTime startDate,LocalDateTime endDate, String senderAccountNumber, String receiverAccountNumber, Pageable pageable
     );
+
 }
+

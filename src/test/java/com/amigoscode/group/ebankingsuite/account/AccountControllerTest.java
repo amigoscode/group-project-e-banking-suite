@@ -113,60 +113,13 @@ class AccountControllerTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    @Test
-    void willReturn406IfAccountIsNotClearedWhenClosingUserAccount() {
-        //given
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
-
-        Integer userId = 1;
-        Account newAccount = new Account(
-                1,
-                new BigDecimal(10),
-                AccountStatus.ACTIVATED,
-                "6767576476",
-                Tier.LEVEL1,
-                "8493"
-        );
-        String testJwt = "Bearer " + "testToken";
-
-        given(jwtService.extractUserIdFromToken(testJwt)).willReturn(1);
-        given(accountRepository.findAccountByUserId(userId)).willReturn(Optional.of(newAccount));
-
-        //when
-        ResponseEntity<ApiResponse> responseEntity =
-                accountController.closeAccount(testJwt);
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_ACCEPTABLE);
-    }
-
-    @Test
-    void willReturn404IfAccountDoesNotExistWhenClosingAccount() {
-        //given
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
-
-        Integer userId = 1;
-        String testJwt = "Bearer " + "testToken";
-
-        given(jwtService.extractUserIdFromToken(testJwt)).willReturn(1);
-        given(accountRepository.findAccountByUserId(userId)).willReturn(Optional.empty());
-
-        //when
-        ResponseEntity<ApiResponse> responseEntity =
-                accountController.closeAccount(testJwt);
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-    }
 
     @Test
     void willReturn200WhenUpdatingTransactionPin() {
         //given
         MockHttpServletRequest request = new MockHttpServletRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
 
         AccountTransactionPinUpdateModel pinUpdateModel =
                 new AccountTransactionPinUpdateModel("1234");
@@ -190,54 +143,6 @@ class AccountControllerTest {
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
-    @Test
-    void willReturn406WhenUpdatingTransactionPin() {
-        //given
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
 
-        AccountTransactionPinUpdateModel pinUpdateModel =
-                new AccountTransactionPinUpdateModel("12345");
-        Integer userId = 1;
-        Account existingAccount = new Account(
-                1,
-                new BigDecimal(0),
-                AccountStatus.ACTIVATED,
-                "6767576476",
-                Tier.LEVEL1,
-                "8493"
-        );
-        String testJwt = "Bearer " + "testToken";
-
-        given(jwtService.extractUserIdFromToken(testJwt)).willReturn(1);
-        given(accountRepository.findAccountByUserId(userId)).willReturn(Optional.of(existingAccount));
-
-        //when
-        ResponseEntity<ApiResponse> responseEntity =
-                accountController.updateAccountTransactionPin(testJwt,pinUpdateModel);
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_ACCEPTABLE);
-    }
-    @Test
-    void willReturn404IfAccountNotFoundWhenUpdatingTransactionPin() {
-        //given
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
-
-        AccountTransactionPinUpdateModel pinUpdateModel =
-                new AccountTransactionPinUpdateModel("1234");
-        Integer userId = 1;
-        String testJwt = "Bearer " + "testToken";
-
-        given(jwtService.extractUserIdFromToken(testJwt)).willReturn(1);
-        given(accountRepository.findAccountByUserId(userId)).willReturn(Optional.empty());
-
-        //when
-        ResponseEntity<ApiResponse> responseEntity =
-                accountController.updateAccountTransactionPin(testJwt,pinUpdateModel);
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-    }
 }

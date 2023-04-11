@@ -9,6 +9,7 @@ import com.amigoscode.group.ebankingsuite.universal.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -53,7 +54,7 @@ public class AccountController {
     }
     @PutMapping("/transaction-pin")
     public ResponseEntity<ApiResponse> updateAccountTransactionPin(
-            @RequestHeader("Authorization") String jwt, @RequestBody AccountTransactionPinUpdateModel pinUpdateModel) {
+            @RequestHeader("Authorization") String jwt, @RequestBody @Validated AccountTransactionPinUpdateModel pinUpdateModel) {
 
             accountService.updateAccountTransactionPin(jwtService.extractUserIdFromToken(jwt),pinUpdateModel);
             return new ResponseEntity<>(new ApiResponse("transaction pin set"), HttpStatus.OK);
