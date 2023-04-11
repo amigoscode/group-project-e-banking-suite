@@ -120,7 +120,6 @@ public class AccountService {
             throw new AccountNotActivatedException("Account not activated");
         }
         throw new ResourceNotFoundException("Account not found");
-
     }
     public void debitAccount(Account senderAccount, BigDecimal amount) {
 

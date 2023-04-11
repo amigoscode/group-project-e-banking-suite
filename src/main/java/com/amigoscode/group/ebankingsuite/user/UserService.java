@@ -2,6 +2,7 @@ package com.amigoscode.group.ebankingsuite.user;
 
 import com.amigoscode.group.ebankingsuite.account.Account;
 import com.amigoscode.group.ebankingsuite.account.AccountService;
+import com.amigoscode.group.ebankingsuite.exception.ResourceExistsException;
 import com.amigoscode.group.ebankingsuite.exception.ValueMismatchException;
 import com.amigoscode.group.ebankingsuite.user.requests.ChangePasswordRequest;
 import com.amigoscode.group.ebankingsuite.user.requests.UserAuthenticationRequests;
@@ -46,7 +47,7 @@ public class UserService {
     @Transactional
     public void createNewUser(UserRegistrationRequest userRegistrationRequest){
         if(userRepository.existsByEmailAddress(userRegistrationRequest.emailAddress())){
-            throw new IllegalArgumentException("email address is taken");
+            throw new ResourceExistsException("email address is taken");
         }
         User newUser = new User(
                 userRegistrationRequest.fullName(),
@@ -64,29 +65,42 @@ public class UserService {
 
 
     public String authenticateUser(UserAuthenticationRequests requests){
-        Optional<User> existingUser = userRepository.findByEmailAddress(requests.emailAddress());
+        User existingUser = getUserByEmailAddress(requests.emailAddress());
 
-        if(existingUser.isPresent()){
-            if (passwordMatches(requests.password(),existingUser.get().getPassword())){
-                Map<String,Object> claims = Map.of("userId", existingUser.get().getId());
-                return jwtService.generateToken(claims,existingUser.get());
-            }
-            throw new InvalidAuthenticationException("Invalid username or password");
+        if (passwordMatches(requests.password(),existingUser.getPassword())){
+            Map<String,Object> claims = Map.of("userId", existingUser.getId());
+            return jwtService.generateToken(claims,existingUser);
         }
-        throw new ResourceNotFoundException("user does not exist");
+        throw new InvalidAuthenticationException("Invalid username or password");
+
     }
 
     public void changeUserPassword(ChangePasswordRequest request, Integer userId){
-        Optional<User> existingUser = userRepository.findById(String.valueOf(userId));
-        if(existingUser.isPresent()){
-           if(bCryptPasswordEncoder.matches(request.oldPassword(),existingUser.get().getPassword())){
-               existingUser.get().setPassword(bCryptPasswordEncoder.encode(request.newPassword()));
-               updateUser(existingUser.get());
-               return;
-           }
-           throw new ValueMismatchException("old password does not match");
+        User existingUser = getUserByUserId(userId);
+
+        if(!bCryptPasswordEncoder.matches(request.oldPassword(),existingUser.getPassword())){
+            throw new ValueMismatchException("old password does not match");
         }
-        throw new ResourceNotFoundException("user not found");
+
+        existingUser.setPassword(bCryptPasswordEncoder.encode(request.newPassword()));
+        updateUser(existingUser);
+
+
+    }
+
+    public User getUserByUserId(int userId){
+        Optional<User> existingUser = userRepository.findById(userId);
+        if(existingUser.isEmpty()){
+            throw new ResourceNotFoundException("user not found");
+        }
+        return existingUser.get();
+    }
+    public User getUserByEmailAddress(String emailAddress){
+        Optional<User> existingUser = userRepository.findByEmailAddress(emailAddress);
+        if(existingUser.isEmpty()){
+            throw new ResourceNotFoundException("user not found");
+        }
+        return existingUser.get();
     }
 
 

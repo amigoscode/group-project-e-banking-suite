@@ -26,46 +26,26 @@ public class UserController {
         this.jwtService = jwtService;
     }
 
-    @PostMapping("/save")
+    @PostMapping()
     public ResponseEntity<ApiResponse> saveUser(@RequestBody UserRegistrationRequest request){
-        try {
             userService.createNewUser(request);
             return  new ResponseEntity<>(
                     new ApiResponse("user created successfully"), HttpStatus.CREATED);
-        }catch (IllegalArgumentException e){
-            return  new ResponseEntity<>(
-                    new ApiResponse(e.getMessage()), HttpStatus.CONFLICT);
-        }
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> authenticateUser(
             @RequestBody UserAuthenticationRequests userAuthenticationRequests){
-       try {
+
            String jwt = userService.authenticateUser(userAuthenticationRequests);
            return new ResponseEntity<>(
                    new ApiResponse("user logged in successfully",jwt),HttpStatus.OK);
-       }catch (InvalidAuthenticationException e){
-           return  new ResponseEntity<>(
-                   new ApiResponse(e.getMessage()), HttpStatus.FORBIDDEN);
-       }catch (ResourceNotFoundException e){
-           return  new ResponseEntity<>(
-                   new ApiResponse(e.getMessage()), HttpStatus.NOT_FOUND);
-       }
-
     }
 
     @PutMapping("/change-password")
     public ResponseEntity<ApiResponse> changeUserPassword(@RequestHeader("Authorization") String jwt,
                                                           @RequestBody ChangePasswordRequest request){
-        try {
-            userService.changeUserPassword(request,jwtService.extractUserIdFromToken(jwt));
-            return new ResponseEntity<>(new ApiResponse("password changed"),HttpStatus.OK);
-        }catch (ResourceNotFoundException e){
-            return new ResponseEntity<>(new ApiResponse(e.getMessage()),HttpStatus.NOT_FOUND);
-        }catch (ValueMismatchException e){
-            return new ResponseEntity<>(new ApiResponse(e.getMessage()),HttpStatus.NOT_ACCEPTABLE);
-        }
+        userService.changeUserPassword(request,jwtService.extractUserIdFromToken(jwt));
+        return new ResponseEntity<>(new ApiResponse("password changed"),HttpStatus.OK);
     }
-
 }

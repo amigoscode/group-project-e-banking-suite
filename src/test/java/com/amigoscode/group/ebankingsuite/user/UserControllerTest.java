@@ -175,7 +175,7 @@ class UserControllerTest {
         );
         String jwt = "Bearer "+ "testToken";
 
-        given(userRepository.findById(String.valueOf(userId))).willReturn(Optional.of(mockUser));
+        given(userRepository.findById(userId)).willReturn(Optional.of(mockUser));
         given(jwtService.extractUserIdFromToken(jwt)).willReturn(1);
 
 
@@ -206,7 +206,7 @@ class UserControllerTest {
         );
         String jwt = "Bearer "+ "testToken";
 
-        given(userRepository.findById(String.valueOf(userId))).willReturn(Optional.of(mockUser));
+        given(userRepository.findById(userId)).willReturn(Optional.of(mockUser));
         given(jwtService.extractUserIdFromToken(jwt)).willReturn(1);
 
 
@@ -214,7 +214,7 @@ class UserControllerTest {
         ResponseEntity<ApiResponse> responseEntity =
                 userController.changeUserPassword(jwt,changePasswordRequest);
         //then
-        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(406);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
     @Test
     void willReturn404WhenNoUserFoundForUserIdForChangePassword(){
@@ -230,7 +230,7 @@ class UserControllerTest {
         String jwt = "Bearer "+ "testToken";
 
         given(jwtService.extractUserIdFromToken(jwt)).willReturn(1);
-        given(userRepository.findById(String.valueOf(userId))).willReturn(Optional.empty());
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
 
         //when
         ResponseEntity<ApiResponse> responseEntity =

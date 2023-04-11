@@ -8,16 +8,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-/**
- * The type Account.
- */
+
 @Entity
 @Table(name = "accounts")
 @Data
 @AllArgsConstructor
-/*
-  This is the class for the account.
- */
+
 public class Account {
 
     @Id

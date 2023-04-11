@@ -2,9 +2,6 @@ package com.amigoscode.group.ebankingsuite.transaction;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,6 +23,9 @@ public class Transaction {
     private Integer id;
     private String senderAccountNumber;
     private String receiverAccountNumber;
+
+    private String senderName;
+    private String receiverName;
     private BigDecimal amount;
     private String referenceNum;
     private String description;
@@ -37,7 +37,7 @@ public class Transaction {
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("d/M/yyyy HH:mm:ss");
 
-    public Transaction(String senderAccountNumber, String receiverAccountNumber, BigDecimal amount, String referenceNum, String description, TransactionStatus status) {
+    public Transaction(String senderAccountNumber, String receiverAccountNumber, BigDecimal amount, String referenceNum, String description, TransactionStatus status, String senderName, String receiverName) {
         this.senderAccountNumber = senderAccountNumber;
         this.receiverAccountNumber = receiverAccountNumber;
         this.amount = amount;
@@ -48,7 +48,10 @@ public class Transaction {
                 DATE_TIME_FORMATTER.format(LocalDateTime.now()),
                 DATE_TIME_FORMATTER);
         this.updatedAt = createdAt;
+        this.senderName = senderName;
+        this.receiverName = receiverName;
     }
+
     public Transaction(){
         this.createdAt = LocalDateTime.parse(
                 DATE_TIME_FORMATTER.format(LocalDateTime.now()),

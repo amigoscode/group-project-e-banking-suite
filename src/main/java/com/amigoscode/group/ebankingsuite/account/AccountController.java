@@ -48,29 +48,15 @@ public class AccountController {
     @DeleteMapping("/close")
     public ResponseEntity<ApiResponse> closeAccount(
             @RequestHeader("Authorization") String jwt) {
-        try {
             accountService.closeAccount(jwtService.extractUserIdFromToken(jwt));
-
             return new ResponseEntity<>(new ApiResponse("account closed successfully"), HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(new ApiResponse(e.getMessage()), HttpStatus.NOT_FOUND);
-        } catch (AccountNotClearedException e) {
-            return new ResponseEntity<>(new ApiResponse(e.getMessage()), HttpStatus.NOT_ACCEPTABLE);
-        }
     }
     @PutMapping("/transaction-pin")
     public ResponseEntity<ApiResponse> updateAccountTransactionPin(
-            @RequestHeader("Authorization") String jwt,
-            @RequestBody AccountTransactionPinUpdateModel pinUpdateModel) {
-        try {
-            accountService.updateAccountTransactionPin(
-                    jwtService.extractUserIdFromToken(jwt),pinUpdateModel);
+            @RequestHeader("Authorization") String jwt, @RequestBody AccountTransactionPinUpdateModel pinUpdateModel) {
+
+            accountService.updateAccountTransactionPin(jwtService.extractUserIdFromToken(jwt),pinUpdateModel);
             return new ResponseEntity<>(new ApiResponse("transaction pin set"), HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(new ApiResponse(e.getMessage()), HttpStatus.NOT_FOUND);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(new ApiResponse(e.getMessage()), HttpStatus.NOT_ACCEPTABLE);
-        }
     }
 
 /*    @PostMapping("/profile")

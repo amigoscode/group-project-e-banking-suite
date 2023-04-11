@@ -1,8 +1,8 @@
 package com.amigoscode.group.ebankingsuite.transaction;
 
+import com.amigoscode.group.ebankingsuite.config.JWTService;
 import com.amigoscode.group.ebankingsuite.transaction.request.FundsTransferRequest;
 import com.amigoscode.group.ebankingsuite.universal.ApiResponse;
-import com.amigoscode.group.ebankingsuite.user.requests.UserRegistrationRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,19 +17,19 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-class TransactionControllerTest {
+class  TransactionControllerTest {
 
     private TransactionController transactionController;
     @Mock
     private TransactionService transactionService;
+    @Mock
+    private JWTService jwtService;
 
     @BeforeEach
     void setUp() {
-        this.transactionController = new TransactionController(transactionService);
+        this.transactionController = new TransactionController(transactionService, jwtService);
     }
 
     @Test

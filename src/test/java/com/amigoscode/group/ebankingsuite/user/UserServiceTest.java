@@ -147,7 +147,7 @@ class UserServiceTest {
         //that
         assertThatThrownBy(()-> userService.authenticateUser(authenticationRequests))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("user does not exist");
+                .hasMessage("user not found");
     }
 
     @Test
@@ -165,8 +165,7 @@ class UserServiceTest {
                 userService.encodePassword("12345"),
                 true);
 
-        given(userRepository.findById(
-               String.valueOf(userId))).willReturn(Optional.of(mockUser));
+        given(userRepository.findById(userId)).willReturn(Optional.of(mockUser));
 
         //when
         userService.changeUserPassword(request,userId);
@@ -192,7 +191,7 @@ class UserServiceTest {
                 userService.encodePassword("12345"),
                 true
         );
-        given(userRepository.findById(String.valueOf(userId))).willReturn(Optional.of(mockUser));
+        given(userRepository.findById(userId)).willReturn(Optional.of(mockUser));
 
         //when
         //then
@@ -209,7 +208,7 @@ class UserServiceTest {
         );
         Integer userId = 1;
 
-        given(userRepository.findById(String.valueOf(userId))).willReturn(Optional.empty());
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
 
         //when
         //then

@@ -30,7 +30,9 @@ public class TransactionRepositoryTest {
                 new BigDecimal(50),
                 "dvhbjh37878",
                 "test transaction",
-                TransactionStatus.SUCCESS
+                TransactionStatus.SUCCESS,
+                "test1",
+                "test2"
         );
         transactionRepository.save(newTransaction);
         //when
