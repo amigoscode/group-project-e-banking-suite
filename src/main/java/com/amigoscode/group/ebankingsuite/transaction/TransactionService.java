@@ -9,16 +9,27 @@ import com.amigoscode.group.ebankingsuite.transaction.request.TransactionHistory
 import com.amigoscode.group.ebankingsuite.transaction.response.TransactionHistoryResponse;
 import com.amigoscode.group.ebankingsuite.transaction.response.TransactionType;
 import com.amigoscode.group.ebankingsuite.user.UserService;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 @Service
@@ -141,5 +152,52 @@ public class TransactionService {
             return TransactionType.DEBIT;
         }
            throw new IllegalArgumentException("error processing cannot determine transaction type");
+    }
+
+    /**
+     * This method generates a pdf statement for a particular account for a particular month or year
+     */
+    public byte[] generateAccountStatement(String accountNumber, int year, int month) throws IOException, DocumentException {
+
+        LocalDateTime startDate = LocalDateTime.of(year, month, 1, 0, 0);
+        LocalDateTime endDate = LocalDateTime.of(year, month, startDate.toLocalDate().lengthOfMonth(), 23, 59, 59);
+        Slice<Transaction> transactions = transactionRepository
+                .findAllByStatusAndCreatedAtBetweenAndSenderAccountNumberOrReceiverAccountNumber(
+                        TransactionStatus.SUCCESS, startDate, endDate, accountNumber, accountNumber, PageRequest.of(0, Integer.MAX_VALUE));
+        List<TransactionHistoryResponse> transactionHistoryResponses = formatTransactions(transactions.getContent(), accountNumber);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            Document document = new Document(PageSize.A4);
+            PdfWriter.getInstance(document, outputStream);
+            document.open();
+            Paragraph paragraph = new Paragraph("Monthly Statement for " + accountNumber + " (" + startDate.format(DateTimeFormatter.ofPattern("MMMM yyyy")) + ")", new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD));
+            paragraph.setAlignment(Element.ALIGN_CENTER);
+            document.add(paragraph);
+            document.add(new Paragraph("\n"));
+            PdfPTable table = new PdfPTable(5);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{2, 2, 2, 2, 2});
+            table.addCell("Date");
+            table.addCell("Sender Name");
+            table.addCell("Receiver Name");
+            table.addCell("Transaction Type");
+            table.addCell("Amount");
+            transactionHistoryResponses.forEach(transactionHistoryResponse -> {
+                table.addCell(transactionHistoryResponse.getTransactionDateTime().format(DateTimeFormatter.ofPattern("d MMM yyyy HH:mm:ss")));
+                table.addCell(transactionHistoryResponse.getSenderName());
+                table.addCell(transactionHistoryResponse.getReceiverName());
+                table.addCell(transactionHistoryResponse.getTransactionType().toString());
+                table.addCell(transactionHistoryResponse.getAmount().toString());
+            });
+            document.add(table);
+            document.close();
+            return outputStream.toByteArray();
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException("File not found: " + e.getMessage());
+        } catch (IOException e) {
+            throw new IOException("Error reading or writing file: " + e.getMessage());
+        } catch (DocumentException e) {
+            throw new DocumentException("Error creating PDF document: " + e.getMessage());
+        }
     }
 }
