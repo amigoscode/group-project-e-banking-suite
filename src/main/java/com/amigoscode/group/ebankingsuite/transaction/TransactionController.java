@@ -4,9 +4,12 @@ import com.amigoscode.group.ebankingsuite.config.JWTService;
 import com.amigoscode.group.ebankingsuite.transaction.request.FundsTransferRequest;
 import com.amigoscode.group.ebankingsuite.transaction.request.TransactionHistoryRequest;
 import com.amigoscode.group.ebankingsuite.universal.ApiResponse;
+import lombok.SneakyThrows;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -42,5 +45,24 @@ public class TransactionController {
         return new ResponseEntity<>(new ApiResponse("transaction history",
                     transactionService.getTransactionHistoryByUserId(request,jwtService.extractUserIdFromToken(jwt),pageable)),
                     HttpStatus.OK);
+    }
+
+    /**
+     * This controller generates a pdf statement for montly or yearly transactions of a particular account
+     */
+    @SneakyThrows
+    @GetMapping("/statement/{accountNumber}")
+    public ResponseEntity<byte[]> accountTransactionStatement(
+            @RequestParam String accountNumber,
+            @RequestParam(required = true) int year,
+            @RequestParam(required = false, defaultValue = "0") int month) {
+
+        byte[] statementBytes = transactionService.generateAccountStatement(accountNumber, year, month);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "statement.pdf");
+
+        return new ResponseEntity<>(statementBytes, headers, HttpStatus.OK);
     }
 }
