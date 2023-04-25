@@ -4,15 +4,13 @@ import com.amigoscode.group.ebankingsuite.config.JWTService;
 import com.amigoscode.group.ebankingsuite.transaction.request.FundsTransferRequest;
 import com.amigoscode.group.ebankingsuite.transaction.request.TransactionHistoryRequest;
 import com.amigoscode.group.ebankingsuite.universal.ApiResponse;
-import lombok.SneakyThrows;
+import com.itextpdf.text.DocumentException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import java.io.ByteArrayOutputStream;
 
 @RestController
 @RequestMapping("/api/v1/transactions")
@@ -49,21 +47,31 @@ public class TransactionController {
     }
 
     /**
-     * This controller generates a pdf statement for montly or yearly transactions of a particular account
+     * This controller generates monthly or yearly account statement in pdf format
      */
-    @SneakyThrows
-    @GetMapping("/statement/{accountNumber}")
-    public ResponseEntity<byte[]> accountTransactionStatement(
-            @RequestParam String accountNumber,
-            @RequestParam(required = true) int year,
-            @RequestParam(required = false, defaultValue = "0") int month) {
-
-        byte[] statementBytes = transactionService.generateAccountStatement(accountNumber, year, month);
-
+    @GetMapping(value = "/{userId}/transaction-report", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> generateTransactionStatement(
+            @PathVariable int userId,
+            @RequestHeader("Authorization") String jwt,
+            @RequestParam int year,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(defaultValue = "0") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) throws DocumentException {
+        ByteArrayOutputStream outputStream = transactionService.generateTransactionStatement(
+                userId,
+                year,
+                month,
+                pageNum,
+                pageSize
+        );
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "statement.pdf");
-
-        return new ResponseEntity<>(statementBytes, headers, HttpStatus.OK);
+        headers.setContentDisposition(
+                ContentDisposition.builder("inline")
+                        .filename("transaction_report.pdf")
+                        .build()
+        );
+        return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
     }
 }
