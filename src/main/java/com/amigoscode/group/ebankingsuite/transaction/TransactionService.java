@@ -4,6 +4,8 @@ import com.amigoscode.group.ebankingsuite.account.Account;
 import com.amigoscode.group.ebankingsuite.account.AccountService;
 import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
 import com.amigoscode.group.ebankingsuite.exception.ValueMismatchException;
+import com.amigoscode.group.ebankingsuite.notification.NotificationSenderService;
+import com.amigoscode.group.ebankingsuite.notification.emailNotification.request.FundsAlertNotificationRequest;
 import com.amigoscode.group.ebankingsuite.transaction.request.FundsTransferRequest;
 import com.amigoscode.group.ebankingsuite.transaction.request.TransactionHistoryRequest;
 import com.amigoscode.group.ebankingsuite.transaction.response.TransactionHistoryResponse;
@@ -27,16 +29,18 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final AccountService accountService;
     private final UserService userService;
+    private final NotificationSenderService notificationSenderService;
 
     private static final BCryptPasswordEncoder ENCODER = new BCryptPasswordEncoder();
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
 
     @Autowired
-    public TransactionService(TransactionRepository transactionRepository, AccountService accountService, UserService userService) {
+    public TransactionService(TransactionRepository transactionRepository, AccountService accountService, UserService userService, NotificationSenderService notificationSenderService) {
         this.transactionRepository = transactionRepository;
         this.accountService = accountService;
         this.userService = userService;
+        this.notificationSenderService = notificationSenderService;
     }
 
 
@@ -49,6 +53,7 @@ public class TransactionService {
                 accountService.debitAccount(senderAccount, request.amount());
                 accountService.creditAccount(receiverAccount, request.amount());
                 saveNewTransaction(request, senderAccount, receiverAccount);
+                notificationSenderService.sendCreditAndDebitNotification(new FundsAlertNotificationRequest(senderAccount.getUserId(),receiverAccount.getUserId(),senderAccount.getAccountBalance(),receiverAccount.getAccountBalance(),request.amount()));
                 return;
             }
             throw new ValueMismatchException("incorrect transaction pin");

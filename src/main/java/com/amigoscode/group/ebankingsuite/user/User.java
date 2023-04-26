@@ -33,6 +33,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
+    private String phoneNumber;
+    @Column(nullable = false)
     private boolean isNotBlocked;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -40,7 +42,7 @@ public class User implements UserDetails {
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("d/M/yyyy HH:mm:ss");
 
-    public User(String fullName, String emailAddress, String password, boolean isNotBlocked) {
+    public User(String fullName, String emailAddress, String password, boolean isNotBlocked, String phoneNumber) {
         this.fullName = fullName;
         this.emailAddress = emailAddress;
         this.password = password;
@@ -49,6 +51,7 @@ public class User implements UserDetails {
                 DATE_TIME_FORMATTER);
         this.updatedAt = createdAt;
         this.isNotBlocked = isNotBlocked;
+        this.phoneNumber= phoneNumber;
     }
 
     /**

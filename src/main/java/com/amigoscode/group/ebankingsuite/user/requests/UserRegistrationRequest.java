@@ -8,6 +8,8 @@ public record UserRegistrationRequest(
         @NonNull
         String emailAddress,
         @NonNull
-        String password
+        String password,
+        @NonNull
+        String phoneNumber
 ) {
 }

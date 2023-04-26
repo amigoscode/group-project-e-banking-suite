@@ -3,6 +3,7 @@ package com.amigoscode.group.ebankingsuite.transaction;
 import com.amigoscode.group.ebankingsuite.account.*;
 import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
 import com.amigoscode.group.ebankingsuite.exception.ValueMismatchException;
+import com.amigoscode.group.ebankingsuite.notification.emailNotification.EmailSenderService;
 import com.amigoscode.group.ebankingsuite.transaction.request.FundsTransferRequest;
 import com.amigoscode.group.ebankingsuite.transaction.request.TransactionHistoryRequest;
 import com.amigoscode.group.ebankingsuite.transaction.response.TransactionHistoryResponse;
@@ -33,12 +34,14 @@ class TransactionServiceTest {
     private AccountService accountService;
     @Mock
     private UserService userService;
+    @Mock
+    private EmailSenderService emailNotificationService;
     @InjectMocks
     private TransactionService transactionService;
 
     @BeforeEach
     void setUp() {
-        transactionService = new TransactionService(transactionRepository, accountService, userService);
+        transactionService = new TransactionService(transactionRepository, accountService, userService, emailNotificationService);
     }
 
     @Test

@@ -31,7 +31,6 @@ public class TransactionController {
     }
 
     /**
-<<<<<<< HEAD
      * This controller fetches all transaction based on a range of date and also implements pagination to help reduce load time
      */
     @PostMapping()

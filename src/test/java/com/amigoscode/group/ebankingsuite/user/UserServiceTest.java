@@ -50,7 +50,8 @@ class UserServiceTest {
         UserRegistrationRequest testRequest = new UserRegistrationRequest(
                 "pen tami",
                 "pentami@mailer.com",
-                "12345"
+                "12345",
+                "+2349087708156"
         );
         given(userRepository.existsByEmailAddress(testRequest.emailAddress())).willReturn(false);
 
@@ -61,7 +62,7 @@ class UserServiceTest {
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userArgumentCaptor.capture());
         assertThat(userArgumentCaptor.getValue()).isEqualToComparingOnlyGivenFields(new User(
-                testRequest.fullName(),testRequest.emailAddress(),testRequest.password(),true),
+                testRequest.fullName(),testRequest.emailAddress(),testRequest.password(),true,testRequest.phoneNumber()),
                 "fullName","emailAddress","isNotBlocked");
     }
 
@@ -71,7 +72,8 @@ class UserServiceTest {
         UserRegistrationRequest testRequest = new UserRegistrationRequest(
                 "pen tami",
                 "pentami@mailer.com",
-                "12345"
+                "12345",
+                "+234907656788"
         );
         given(userRepository.existsByEmailAddress(testRequest.emailAddress())).willReturn(true);
 
@@ -107,7 +109,7 @@ class UserServiceTest {
         ArgumentCaptor<Map> mapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
         verify(jwtService).generateToken(mapArgumentCaptor.capture(),userArgumentCaptor.capture());
         assertThat(userArgumentCaptor.getValue()).isEqualToComparingOnlyGivenFields(new User(
-                        mockUser.getFullName(),mockUser.getEmailAddress(),mockUser.getPassword(),true),
+                        mockUser.getFullName(),mockUser.getEmailAddress(),mockUser.getPassword(),true,"+234658789"),
                 "fullName","emailAddress","isNotBlocked");
     }
     @Test
@@ -121,7 +123,8 @@ class UserServiceTest {
                 "lawal Olakunle",
                 "larwal@mail.com",
                 userService.encodePassword("1234"),
-                true);
+                true,
+                "+2346987898");
 
         given(userRepository.findByEmailAddress(
                 authenticationRequests.emailAddress())).willReturn(Optional.of(mockUser));

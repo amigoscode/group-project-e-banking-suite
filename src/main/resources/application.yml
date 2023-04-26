@@ -17,3 +17,16 @@ spring:
     show-sql: false
   main:
     web-application-type: servlet
+  mail:
+    host: smtp.gmail.com
+    username: ebankingsuite@gmail.com
+    password: fzlscatiopttfzek
+    properties:
+      "mail.smtp.socketFactory.port": 465
+      "mail.smtp.auth": true
+      "mail.smtp.socketFactory.class" : javax.net.ssl.SSLSocketFactory
+
+twilio:
+  account_sid: AC8bd7bfd35c34219a8bdac215f9b31411
+  auth_token: 90d71a0a3d9bd1d09a4c292a181293b4
+  trial_number: +15077107547

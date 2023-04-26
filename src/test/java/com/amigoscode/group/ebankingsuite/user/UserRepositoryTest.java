@@ -29,7 +29,8 @@ class UserRepositoryTest{
                 "test pater",
                 "ebanking@gmail.com",
                 "1234",
-                true
+                true,
+                "+23478768990"
         );
         userRepository.save(testUser);
 
@@ -48,7 +49,8 @@ class UserRepositoryTest{
                 "test pater",
                 "ebanking@gmail.com",
                 "1234",
-                true
+                true,
+                "+2348709090"
         );
 
         userRepository.save(testUser);

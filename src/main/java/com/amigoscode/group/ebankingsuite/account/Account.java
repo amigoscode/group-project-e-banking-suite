@@ -48,6 +48,13 @@ public class Account {
         this.updatedAt = createdAt;
         this.setAccountBalance(new BigDecimal(0));
     }
+    public Account(){
+        this.createdAt = LocalDateTime.parse(
+                DATE_TIME_FORMATTER.format(LocalDateTime.now()),
+                DATE_TIME_FORMATTER);
+        this.updatedAt = createdAt;
+        this.setAccountBalance(new BigDecimal(0));
+    }
 
     public Account(Integer userId, BigDecimal accountBalance, AccountStatus accountStatus, String accountNumber, Tier tierLevel, String transactionPin) {
         this.userId = userId;

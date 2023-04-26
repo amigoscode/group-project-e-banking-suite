@@ -53,7 +53,8 @@ public class UserService {
                 userRegistrationRequest.fullName(),
                 userRegistrationRequest.emailAddress(),
                 bCryptPasswordEncoder.encode(userRegistrationRequest.password()),
-                true);
+                true,
+                userRegistrationRequest.phoneNumber());
 
         userRepository.save(newUser);
         accountService.createAccount(new Account(newUser.getId()));
