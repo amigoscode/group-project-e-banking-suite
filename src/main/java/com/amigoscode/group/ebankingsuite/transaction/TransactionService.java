@@ -12,9 +12,11 @@ import com.amigoscode.group.ebankingsuite.transaction.response.TransactionHistor
 import com.amigoscode.group.ebankingsuite.transaction.response.TransactionType;
 import com.amigoscode.group.ebankingsuite.user.UserService;
 import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -24,14 +26,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Locale;
 
 
 @Service
@@ -160,49 +161,62 @@ public class TransactionService {
     }
 
     /**
-     * This method generates a pdf statement for a particular account for a particular month or year
+     * This method generates an account statement for a particular account by userId, month, year and returns it as a pdf file
      */
-    public byte[] generateAccountStatement(String accountNumber, int year, int month) throws IOException, DocumentException {
-
-        LocalDateTime startDate = LocalDateTime.of(year, month, 1, 0, 0);
-        LocalDateTime endDate = LocalDateTime.of(year, month, startDate.toLocalDate().lengthOfMonth(), 23, 59, 59);
-        Slice<Transaction> transactions = transactionRepository
-                .findAllByStatusAndCreatedAtBetweenAndSenderAccountNumberOrReceiverAccountNumber(
-                        TransactionStatus.SUCCESS, startDate, endDate, accountNumber, accountNumber, PageRequest.of(0, Integer.MAX_VALUE));
-        List<TransactionHistoryResponse> transactionHistoryResponses = formatTransactions(transactions.getContent(), accountNumber);
-
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            Document document = new Document(PageSize.A4);
-            PdfWriter.getInstance(document, outputStream);
-            document.open();
-            Paragraph paragraph = new Paragraph("Monthly Statement for " + accountNumber + " (" + startDate.format(DateTimeFormatter.ofPattern("MMMM yyyy")) + ")", new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD));
-            paragraph.setAlignment(Element.ALIGN_CENTER);
-            document.add(paragraph);
-            document.add(new Paragraph("\n"));
-            PdfPTable table = new PdfPTable(5);
-            table.setWidthPercentage(100);
-            table.setWidths(new float[]{2, 2, 2, 2, 2});
-            table.addCell("Date");
-            table.addCell("Sender Name");
-            table.addCell("Receiver Name");
-            table.addCell("Transaction Type");
-            table.addCell("Amount");
-            transactionHistoryResponses.forEach(transactionHistoryResponse -> {
-                table.addCell(transactionHistoryResponse.getTransactionDateTime().format(DateTimeFormatter.ofPattern("d MMM yyyy HH:mm:ss")));
-                table.addCell(transactionHistoryResponse.getSenderName());
-                table.addCell(transactionHistoryResponse.getReceiverName());
-                table.addCell(transactionHistoryResponse.getTransactionType().toString());
-                table.addCell(transactionHistoryResponse.getAmount().toString());
-            });
-            document.add(table);
-            document.close();
-            return outputStream.toByteArray();
-        } catch (FileNotFoundException e) {
-            throw new FileNotFoundException("File not found: " + e.getMessage());
-        } catch (IOException e) {
-            throw new IOException("Error reading or writing file: " + e.getMessage());
-        } catch (DocumentException e) {
-            throw new DocumentException("Error creating PDF document: " + e.getMessage());
+    public ByteArrayOutputStream generateTransactionStatement(int userId, int year, Integer month, int pageNum, int pageSize) throws DocumentException {
+        Account account = accountService.getAccountByUserId(userId);
+        LocalDateTime startDate = LocalDateTime.of(year, month == null ? 1 : month, 1, 0, 0);
+        LocalDateTime endDate = LocalDateTime.of(year, month == null ? 12 : month, month == null ? 31 : startDate.toLocalDate().lengthOfMonth(), 23, 59);
+        Page<Transaction> transactions = transactionRepository.findAllByStatusAndCreatedAtBetweenAndSenderAccountNumberOrReceiverAccountNumber(
+                TransactionStatus.SUCCESS,
+                startDate,
+                endDate,
+                account.getAccountNumber(),
+                account.getAccountNumber(),
+                PageRequest.of(pageNum, pageSize)
+        );
+        if (transactions.isEmpty()) {
+            throw new ResourceNotFoundException("No transactions found for the specified period.");
         }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Document document = new Document();
+        PdfWriter.getInstance(document, outputStream);
+        document.open();
+
+        String period;
+        if (month == null) {
+            period = "" + year;
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM", Locale.ENGLISH);
+            String monthName = formatter.format(Month.of(month));
+            period = monthName + " " + year;
+        }
+
+        document.add(new Paragraph("Account Statement for " + ("") + period));
+        document.add(new Paragraph("Account Number: " + account.getAccountNumber()));
+        document.add(new Paragraph("Account Holder: " + userService.getUserByUserId(account.getUserId()).getFullName()));
+        document.add(Chunk.NEWLINE);
+
+        Font boldFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD);
+        PdfPTable table = new PdfPTable(new float[]{1, 1, 1, 1, 1, 1});
+        table.addCell(new PdfPCell(new Phrase("Reference Number", boldFont)));
+        table.addCell(new PdfPCell(new Phrase("Transaction Date", boldFont)));
+        table.addCell(new PdfPCell(new Phrase("Amount", boldFont)));
+        table.addCell(new PdfPCell(new Phrase("Sender", boldFont)));
+        table.addCell(new PdfPCell(new Phrase("Recipient", boldFont)));
+        table.addCell(new PdfPCell(new Phrase("Description", boldFont)));
+        transactions.forEach(transaction -> {
+            table.addCell(new PdfPCell(new Phrase(transaction.getReferenceNum())));
+            table.addCell(new PdfPCell(new Phrase(transaction.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))));
+            table.addCell(new PdfPCell(new Phrase(String.format("%.2f", transaction.getAmount()))));
+            table.addCell(new PdfPCell(new Phrase(transaction.getSenderName())));
+            table.addCell(new PdfPCell(new Phrase(transaction.getReceiverName())));
+            table.addCell(new PdfPCell(new Phrase(transaction.getDescription())));
+        });
+        document.add(table);
+
+        document.close();
+        return outputStream;
     }
 }
