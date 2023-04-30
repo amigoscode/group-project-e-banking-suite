@@ -3,6 +3,7 @@ package com.amigoscode.group.ebankingsuite.transaction;
 import com.amigoscode.group.ebankingsuite.account.*;
 import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
 import com.amigoscode.group.ebankingsuite.exception.ValueMismatchException;
+import com.amigoscode.group.ebankingsuite.notification.NotificationSenderService;
 import com.amigoscode.group.ebankingsuite.notification.emailNotification.EmailSenderService;
 import com.amigoscode.group.ebankingsuite.transaction.request.FundsTransferRequest;
 import com.amigoscode.group.ebankingsuite.transaction.request.TransactionHistoryRequest;
@@ -41,7 +42,7 @@ class TransactionServiceTest {
 
     @BeforeEach
     void setUp() {
-        transactionService = new TransactionService(transactionRepository, accountService, userService, emailNotificationService);
+        transactionService = new TransactionService(transactionRepository, accountService, userService, (NotificationSenderService) emailNotificationService);
     }
 
     @Test
@@ -178,7 +179,7 @@ class TransactionServiceTest {
                 "986562737",
                 "986562737",
                 PageRequest.of(1,1)
-        )).willReturn(transactions);
+        )).willReturn((Page<Transaction>) transactions);
 
         //when
         //then
@@ -204,7 +205,7 @@ class TransactionServiceTest {
                 "986562737",
                 "986562737",
                 PageRequest.of(1,1)
-        )).willReturn(transactions);
+        )).willReturn((Page<Transaction>) transactions);
 
         //when
         //then
