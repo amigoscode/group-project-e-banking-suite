@@ -110,7 +110,8 @@ class TransactionServiceTest {
                         transactions.get(0).getAmount(),
                         TransactionType.DEBIT,
                         transactions.get(0).getSenderName(),
-                        transactions.get(0).getReceiverName()));
+                        transactions.get(0).getReceiverName(),
+                        transactions.get(0).getDescription()));
 
         //when
         List<TransactionHistoryResponse> output = transactionService.formatTransactions(transactions, "878676790");

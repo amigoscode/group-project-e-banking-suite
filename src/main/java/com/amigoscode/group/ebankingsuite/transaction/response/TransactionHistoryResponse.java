@@ -18,4 +18,5 @@ public class TransactionHistoryResponse {
     TransactionType transactionType;
     String SenderName;
     String receiverName;
+    String description;
 }
