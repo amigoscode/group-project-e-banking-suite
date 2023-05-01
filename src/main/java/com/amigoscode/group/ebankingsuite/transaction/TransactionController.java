@@ -4,12 +4,13 @@ import com.amigoscode.group.ebankingsuite.config.JWTService;
 import com.amigoscode.group.ebankingsuite.transaction.request.FundsTransferRequest;
 import com.amigoscode.group.ebankingsuite.transaction.request.TransactionHistoryRequest;
 import com.amigoscode.group.ebankingsuite.universal.ApiResponse;
+import com.itextpdf.text.DocumentException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import java.io.ByteArrayOutputStream;
 
 @RestController
 @RequestMapping("/api/v1/transactions")
@@ -42,5 +43,34 @@ public class TransactionController {
         return new ResponseEntity<>(new ApiResponse("transaction history",
                     transactionService.getTransactionHistoryByUserId(request,jwtService.extractUserIdFromToken(jwt),pageable)),
                     HttpStatus.OK);
+    }
+
+    /**
+     * This controller generates monthly or yearly account statement in pdf format
+     */
+    @GetMapping(value = "/{userId}/transaction-report", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> generateTransactionStatement(
+            @PathVariable int userId,
+            @RequestHeader("Authorization") String jwt,
+            @RequestParam int year,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(defaultValue = "0") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) throws DocumentException {
+        ByteArrayOutputStream outputStream = transactionService.generateTransactionStatement(
+                userId,
+                year,
+                month,
+                pageNum,
+                pageSize
+        );
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(
+                ContentDisposition.builder("inline")
+                        .filename("transaction_report.pdf")
+                        .build()
+        );
+        return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
     }
 }
