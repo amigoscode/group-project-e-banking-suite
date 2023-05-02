@@ -51,7 +51,8 @@ class UserControllerTest {
         UserRegistrationRequest userRequest = new UserRegistrationRequest(
                 "lawal",
                 "larwal@mail.com",
-                "12345"
+                "12345",
+                "09074708156"
         );
         MockHttpServletRequest request = new MockHttpServletRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));

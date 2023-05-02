@@ -3,6 +3,7 @@ package com.amigoscode.group.ebankingsuite.transaction;
 import com.amigoscode.group.ebankingsuite.account.*;
 import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
 import com.amigoscode.group.ebankingsuite.exception.ValueMismatchException;
+import com.amigoscode.group.ebankingsuite.notification.NotificationSenderService;
 import com.amigoscode.group.ebankingsuite.notification.emailNotification.EmailSenderService;
 import com.amigoscode.group.ebankingsuite.transaction.request.FundsTransferRequest;
 import com.amigoscode.group.ebankingsuite.transaction.request.TransactionHistoryRequest;
@@ -35,7 +36,7 @@ class TransactionServiceTest {
     @Mock
     private UserService userService;
     @Mock
-    private EmailSenderService emailNotificationService;
+    private NotificationSenderService emailNotificationService;
     @InjectMocks
     private TransactionService transactionService;
 
@@ -100,28 +101,6 @@ class TransactionServiceTest {
 
     }
     @Test
-    void can_format_transaction_history_when_all_params_are_valid(){
-        //given
-        List<Transaction> transactions =
-                List.of(new Transaction("878676790", "765362789", new BigDecimal("500"), "testRefNum", "testTransaction", TransactionStatus.SUCCESS, "testSender", "testReceiver"));
-
-        List<TransactionHistoryResponse> expectedOutput =
-                List.of(new TransactionHistoryResponse(transactions.get(0).getCreatedAt(),
-                        transactions.get(0).getAmount(),
-                        TransactionType.DEBIT,
-                        transactions.get(0).getSenderName(),
-                        transactions.get(0).getReceiverName(),
-                        transactions.get(0).getDescription()));
-
-        //when
-        List<TransactionHistoryResponse> output = transactionService.formatTransactions(transactions, "878676790");
-
-        //then
-        assertThat(output).usingFieldByFieldElementComparator().
-                isEqualTo(expectedOutput);
-    }
-
-    @Test
     void can_confirm_transaction_type_is_Credit(){
         //given
         Transaction transaction = new Transaction("878676790", "765362789", new BigDecimal("500"), "testRefNum", "testTransaction", TransactionStatus.SUCCESS, "testSender", "testReceiver");
@@ -165,9 +144,8 @@ class TransactionServiceTest {
         //given
         int userId = 1;
         Account userAccount = new Account(1,new BigDecimal(200), AccountStatus.ACTIVATED,"986562737", Tier.LEVEL1,"$2a$10$j4ogRjGJWnPUrmdE82Mq5ueybC9SxGTCgQkvzzE7uSbYXoKqIMKxa");
-        Slice<Transaction> transactions =
-                new SliceImpl<>(List.of(new Transaction("986562737", "765362789", new BigDecimal("500"), "testRefNum", "testTransaction", TransactionStatus.SUCCESS, "testSender", "testReceiver")),
-                        Pageable.unpaged(), false);
+        Page<Transaction> transactions =
+                new PageImpl<>(List.of(new Transaction("986562737", "765362789", new BigDecimal("500"), "testRefNum", "testTransaction", TransactionStatus.SUCCESS, "testSender", "testReceiver")));
 
         TransactionHistoryRequest request = new TransactionHistoryRequest(LocalDateTime.now(),LocalDateTime.now().plusHours(2L));
 
@@ -193,7 +171,7 @@ class TransactionServiceTest {
         //given
         int userId = 1;
         Account userAccount = new Account(1,new BigDecimal(200), AccountStatus.ACTIVATED,"986562737", Tier.LEVEL1,"$2a$10$j4ogRjGJWnPUrmdE82Mq5ueybC9SxGTCgQkvzzE7uSbYXoKqIMKxa");
-        Slice<Transaction> transactions = new SliceImpl<>(List.of(), Pageable.unpaged(), false);
+        Page<Transaction> transactions = new PageImpl<>(List.of());
 
         TransactionHistoryRequest request = new TransactionHistoryRequest(LocalDateTime.now(),LocalDateTime.now().plusHours(2L));
 

@@ -13,8 +13,6 @@ import java.time.format.DateTimeFormatter;
 @Table(name = "accounts")
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-
 public class Account {
 
     @Id

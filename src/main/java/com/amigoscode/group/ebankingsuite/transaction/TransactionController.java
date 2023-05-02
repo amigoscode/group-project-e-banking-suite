@@ -48,22 +48,12 @@ public class TransactionController {
     /**
      * This controller generates monthly or yearly account statement in pdf format
      */
-    @GetMapping(value = "/{userId}/transaction-report", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PostMapping(value = "/transaction-report", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> generateTransactionStatement(
-            @PathVariable int userId,
             @RequestHeader("Authorization") String jwt,
-            @RequestParam int year,
-            @RequestParam(required = false) Integer month,
-            @RequestParam(defaultValue = "0") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize
-    ) throws DocumentException {
-        ByteArrayOutputStream outputStream = transactionService.generateTransactionStatement(
-                userId,
-                year,
-                month,
-                pageNum,
-                pageSize
-        );
+            @RequestBody TransactionHistoryRequest request) throws DocumentException {
+
+        int userId = jwtService.extractUserIdFromToken(jwt);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDisposition(
@@ -71,6 +61,12 @@ public class TransactionController {
                         .filename("transaction_report.pdf")
                         .build()
         );
+
+        ByteArrayOutputStream outputStream = transactionService.generateTransactionStatement(
+                request,userId
+        );
+
+
         return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
     }
 }

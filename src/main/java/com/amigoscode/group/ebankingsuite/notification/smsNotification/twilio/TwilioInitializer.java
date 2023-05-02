@@ -1,6 +1,7 @@
 package com.amigoscode.group.ebankingsuite.notification.smsNotification.twilio;
 
 import com.twilio.Twilio;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;

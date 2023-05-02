@@ -43,7 +43,7 @@ public class Transaction {
     private LocalDateTime updatedAt;
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern("d/M/yyyy HH:mm:ss");
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public Transaction(String senderAccountNumber, String receiverAccountNumber, BigDecimal amount, String referenceNum, String description, TransactionStatus status, String senderName, String receiverName) {
         this.senderAccountNumber = senderAccountNumber;
