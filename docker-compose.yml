@@ -1,0 +1,37 @@
+services:
+  db:
+    container_name: postgres_e_banking
+    image: postgres
+    environment:
+      POSTGRES_USER: amigoscode
+      POSTGRES_PASSWORD: postgrespw
+      PGDATA: /data/postgres
+      POSTGRES_DB: e_banking_suite
+    volumes:
+      - db:/var/lib/postgresql
+    ports:
+      - "5332:5432"
+    networks:
+      - db
+    restart: unless-stopped
+
+  test_db:
+    container_name: postgres_e_banking_test
+    image: postgres
+    environment:
+      POSTGRES_USER: amigoscode
+      POSTGRES_PASSWORD: postgrespw
+      PGDATA: /data/postgres
+      POSTGRES_DB: e_banking_suite_test
+    volumes:
+      - db:/var/lib/postgresql
+    ports:
+      - "5323:5432"
+    networks:
+      - db
+    restart: unless-stopped
+networks:
+  db:
+    driver: bridge
+volumes:
+  db:
