@@ -129,4 +129,8 @@ public class AccountService {
         senderAccount.setAccountBalance(senderAccount.getAccountBalance().subtract(amount));
         updateAccount(senderAccount);
     }
+
+    public boolean checkIfAccountIsActivatedByUserId(int userId){
+       return getAccountByUserId(userId).getAccountStatus().equals(AccountStatus.ACTIVATED);
+    }
 }

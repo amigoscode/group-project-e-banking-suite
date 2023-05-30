@@ -1,12 +1,8 @@
 package com.amigoscode.group.ebankingsuite.user;
-
 import com.amigoscode.group.ebankingsuite.config.JWTService;
-import com.amigoscode.group.ebankingsuite.exception.ValueMismatchException;
 import com.amigoscode.group.ebankingsuite.user.requests.ChangePasswordRequest;
 import com.amigoscode.group.ebankingsuite.user.requests.UserAuthenticationRequests;
 import com.amigoscode.group.ebankingsuite.user.requests.UserRegistrationRequest;
-import com.amigoscode.group.ebankingsuite.exception.InvalidAuthenticationException;
-import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
 import com.amigoscode.group.ebankingsuite.universal.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

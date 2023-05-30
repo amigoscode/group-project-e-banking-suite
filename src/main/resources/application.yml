@@ -1,13 +1,13 @@
 server:
-  port: 8080
+  port: 9000
   error:
     include-message: always
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5332/e_banking_suite
-    username: amigoscode
-    password: postgrespw
+    url: jdbc:postgresql://e-banking-suite.cwdmcs5cou00.eu-north-1.rds.amazonaws.com:5432/e_banking_suite_db
+    username: postgres
+    password: postgres
   jpa:
     hibernate:
       ddl-auto: update

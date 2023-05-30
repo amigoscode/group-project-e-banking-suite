@@ -2,14 +2,11 @@ package com.amigoscode.group.ebankingsuite.user;
 
 import com.amigoscode.group.ebankingsuite.account.Account;
 import com.amigoscode.group.ebankingsuite.account.AccountService;
-import com.amigoscode.group.ebankingsuite.exception.ResourceExistsException;
-import com.amigoscode.group.ebankingsuite.exception.ValueMismatchException;
+import com.amigoscode.group.ebankingsuite.exception.*;
 import com.amigoscode.group.ebankingsuite.user.requests.ChangePasswordRequest;
 import com.amigoscode.group.ebankingsuite.user.requests.UserAuthenticationRequests;
 import com.amigoscode.group.ebankingsuite.user.requests.UserRegistrationRequest;
 import com.amigoscode.group.ebankingsuite.config.JWTService;
-import com.amigoscode.group.ebankingsuite.exception.InvalidAuthenticationException;
-import com.amigoscode.group.ebankingsuite.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -68,9 +65,12 @@ public class UserService {
     public String authenticateUser(UserAuthenticationRequests requests){
         User existingUser = getUserByEmailAddress(requests.emailAddress());
 
-        if (passwordMatches(requests.password(),existingUser.getPassword())){
-            Map<String,Object> claims = Map.of("userId", existingUser.getId());
-            return jwtService.generateToken(claims,existingUser);
+        if(accountService.checkIfAccountIsActivatedByUserId(existingUser.getId())){
+            if (passwordMatches(requests.password(),existingUser.getPassword())){
+                Map<String,Object> claims = Map.of("userId", existingUser.getId());
+                return jwtService.generateToken(claims,existingUser);
+            }
+            throw new AccountNotActivatedException("Account is deleted or blocked");
         }
         throw new InvalidAuthenticationException("Invalid username or password");
 
