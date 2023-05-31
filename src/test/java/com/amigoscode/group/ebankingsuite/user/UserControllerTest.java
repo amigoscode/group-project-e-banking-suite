@@ -119,7 +119,7 @@ class UserControllerTest {
         ResponseEntity<ApiResponse> responseEntity =
                 userController.changeUserPassword(jwt,changePasswordRequest);
         //then
-        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(200);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(200);
     }
 
 

@@ -48,4 +48,8 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     public final ResponseEntity<ApiResponse> handleDocumentException(ValueMismatchException exception){
         return new ResponseEntity<>(new ApiResponse(exception.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public final ResponseEntity<ApiResponse> handleIllegalArgumentException(IllegalArgumentException exception){
+        return new ResponseEntity<>(new ApiResponse(exception.getMessage()), HttpStatus.NOT_ACCEPTABLE);
+    }
 }

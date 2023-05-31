@@ -25,9 +25,10 @@ public class TransactionController {
     }
 
     @PostMapping("/send-funds")
-    public ResponseEntity<ApiResponse> transferFunds(@RequestBody @Validated FundsTransferRequest request){
+    public ResponseEntity<ApiResponse> transferFunds(@RequestHeader("Authorization") String jwt,
+                @RequestBody @Validated FundsTransferRequest request){
 
-        transactionService.transferFunds(request);
+        transactionService.transferFunds(request,jwtService.extractUserIdFromToken(jwt));
         return new ResponseEntity<>(new ApiResponse("funds transferred"), HttpStatus.OK);
     }
 
@@ -48,7 +49,7 @@ public class TransactionController {
     /**
      * This controller generates monthly or yearly account statement in pdf format
      */
-    @PostMapping(value = "/transaction-report", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PostMapping(value = "/account-statement", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> generateTransactionStatement(
             @RequestHeader("Authorization") String jwt,
             @RequestBody TransactionHistoryRequest request) throws DocumentException {
@@ -62,11 +63,7 @@ public class TransactionController {
                         .build()
         );
 
-        ByteArrayOutputStream outputStream = transactionService.generateTransactionStatement(
-                request,userId
-        );
-
-
-        return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
+        ByteArrayOutputStream accountStatement = transactionService.generateTransactionStatement(request,userId);
+        return new ResponseEntity<>(accountStatement.toByteArray(), headers, HttpStatus.OK);
     }
 }

@@ -8,8 +8,6 @@ public record FundsTransferRequest(
         @NonNull
         String receiverAccountNumber,
         @NonNull
-        String senderAccountNumber,
-        @NonNull
         BigDecimal amount,
         @NonNull
         String transactionPin,

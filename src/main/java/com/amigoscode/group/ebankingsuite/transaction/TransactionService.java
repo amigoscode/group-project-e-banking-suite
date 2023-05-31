@@ -52,9 +52,9 @@ public class TransactionService {
 
 
     @Transactional
-    public void transferFunds(FundsTransferRequest request){
-        if(!request.senderAccountNumber().equals(request.receiverAccountNumber())){
-            Account senderAccount = accountService.accountExistsAndIsActivated(request.senderAccountNumber());
+    public void transferFunds(FundsTransferRequest request, int userId){
+        Account senderAccount  = accountService.getAccountByUserId(userId);
+        if(!senderAccount.getAccountNumber().equals(request.receiverAccountNumber())){
             if(ENCODER.matches(request.transactionPin(), senderAccount.getTransactionPin())) {
                 Account receiverAccount = accountService.accountExistsAndIsActivated(request.receiverAccountNumber());
                 accountService.debitAccount(senderAccount, request.amount());
@@ -76,7 +76,7 @@ public class TransactionService {
     public void saveNewTransaction(FundsTransferRequest request, Account senderAccount, Account receiverAccount){
 
         transactionRepository.save(
-                new Transaction(request.senderAccountNumber(),
+                new Transaction(senderAccount.getAccountNumber(),
                         request.receiverAccountNumber(),
                         request.amount(),
                         generateTransactionReference(),
@@ -191,13 +191,13 @@ public class TransactionService {
             PdfWriter.getInstance(document, outputStream);
             document.open();
 
-            document.add(new Paragraph("Account Statement for " + request.startDateTime()));
+//            document.add(new Paragraph("Account Statement for " + request.startDateTime()));
             document.add(new Paragraph("Account Number: " + userAccount.getAccountNumber()));
             document.add(new Paragraph("Account Holder: " + userService.getUserByUserId(userAccount.getUserId()).getFullName()));
             document.add(Chunk.NEWLINE);
 
             Font boldFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD);
-            PdfPTable table = new PdfPTable(new float[]{1, 1, 1, 1, 1, 1});
+            PdfPTable table = new PdfPTable(new float[]{2, 2, 2, 2, 2, 2});
 
             table.addCell(new PdfPCell(new Phrase("Reference Number", boldFont)));
             table.addCell(new PdfPCell(new Phrase("Transaction Date", boldFont)));

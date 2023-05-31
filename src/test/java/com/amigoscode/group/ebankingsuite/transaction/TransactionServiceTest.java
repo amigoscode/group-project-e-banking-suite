@@ -48,7 +48,7 @@ class TransactionServiceTest {
     @Test
     void canSuccessfullyTransferFunds() {
         //given
-        FundsTransferRequest request = new FundsTransferRequest("165568799", "986562737", new BigDecimal(200), "1234", "test transfer");
+        FundsTransferRequest request = new FundsTransferRequest("165568799", new BigDecimal(200), "1234", "test transfer");
 
         Account senderAccount = new Account(1,new BigDecimal(200), AccountStatus.ACTIVATED,"986562737", Tier.LEVEL1,"$2a$10$j4ogRjGJWnPUrmdE82Mq5ueybC9SxGTCgQkvzzE7uSbYXoKqIMKxa");
         Account receiverAccount = new Account(2,new BigDecimal(0), AccountStatus.ACTIVATED,"165568799", Tier.LEVEL1,"$2a$10$j4ogRjGJWnPUrmdE82Mq5ueybC9SxGTCgQkvzzE7uSbYXoKqIMKxa");
@@ -62,7 +62,7 @@ class TransactionServiceTest {
         given(userService.getUserByUserId(2)).willReturn(reveiverUser);
 
         //when
-        transactionService.transferFunds(request);
+        transactionService.transferFunds(request, senderUser.getId());
 
         //then
         verify(accountService, times(1)).debitAccount(senderAccount, request.amount());
@@ -72,13 +72,13 @@ class TransactionServiceTest {
     @Test
     void willThrowValueMismatch_TransferFunds_TransactionPinMismatch(){
         //given
-        FundsTransferRequest request = new FundsTransferRequest("165568799", "986562737", new BigDecimal(200), "1224", "test transfer");
+        FundsTransferRequest request = new FundsTransferRequest("165568799", new BigDecimal(200), "1224", "test transfer");
         Account senderAccount = new Account(1,new BigDecimal(200), AccountStatus.ACTIVATED,"986562737", Tier.LEVEL1,"$2a$10$j4ogRjGJWnPUrmdE82Mq5ueybC9SxGTCgQkvzzE7uSbYXoKqIMKxa");
         given(accountService.accountExistsAndIsActivated("986562737")).willReturn(senderAccount);
 
         //when
         //then
-        assertThatThrownBy(()-> transactionService.transferFunds(request))
+        assertThatThrownBy(()-> transactionService.transferFunds(request,senderAccount.getUserId()))
                 .isInstanceOf(ValueMismatchException.class)
                 .hasMessage("incorrect transaction pin");
     }
@@ -86,11 +86,12 @@ class TransactionServiceTest {
     @Test
     void will_Throw_IllegalArgumentException_For_TransferFunds_When_SenderAndReceiverAccountNumberIsTheSame(){
         //given
-        FundsTransferRequest request = new FundsTransferRequest("165568799", "165568799", new BigDecimal(200), "1224", "test transfer");
+        FundsTransferRequest request = new FundsTransferRequest("165568799", new BigDecimal(200), "1224", "test transfer");
+        Account senderAccount = new Account(1,new BigDecimal(200), AccountStatus.ACTIVATED,"165568799", Tier.LEVEL1,"$2a$10$j4ogRjGJWnPUrmdE82Mq5ueybC9SxGTCgQkvzzE7uSbYXoKqIMKxa");
 
         //when
         //then
-        assertThatThrownBy(()-> transactionService.transferFunds(request))
+        assertThatThrownBy(()-> transactionService.transferFunds(request,senderAccount.getUserId()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("sender account cannot be recipient account");
     }
